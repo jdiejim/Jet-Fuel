@@ -78,12 +78,6 @@ __webpack_require__(3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function func() {
-  console.log(this);
-}
-
-(0, _jquery2.default)('button').on('click', func);
-
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -9965,14 +9959,14 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(7)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!../../node_modules/css-loader/index.js??ref--2-1!../../node_modules/sass-loader/lib/loader.js??ref--2-2!./index.scss", function() {
-			var newContent = require("!!../../node_modules/css-loader/index.js??ref--2-1!../../node_modules/sass-loader/lib/loader.js??ref--2-2!./index.scss");
+		module.hot.accept("!!../../node_modules/css-loader/index.js??ref--2-1!../../node_modules/sass-loader/lib/loader.js??ref--2-2!./index.css", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js??ref--2-1!../../node_modules/sass-loader/lib/loader.js??ref--2-2!./index.css");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -9990,7 +9984,7 @@ exports = module.exports = __webpack_require__(5)(true);
 
 
 // module
-exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 100%;\n  height: 100%;\n  font-family: 'Avenir Next', sans-serif; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/styles/src/styles/index.scss"],"names":[],"mappings":"AAAA;EACE,uBAAsB,EACvB;;AAED;EACE,YAAW;EACX,aAAY;EACZ,uCAAsC,EACvC","file":"index.scss","sourcesContent":["* {\n  box-sizing: border-box;\n}\n\nbody {\n  width: 100%;\n  height: 100%;\n  font-family: 'Avenir Next', sans-serif;\n}\n"],"sourceRoot":""}]);
+exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 100%;\n  height: 100%;\n  font-family: 'Avenir Next', sans-serif; }\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n  color: magenta; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/styles/src/styles/index.css"],"names":[],"mappings":"AAAA;EACE,uBAAsB,EACvB;;AAED;EACE,YAAW;EACX,aAAY;EACZ,uCAAsC,EACvC;;AAED;;;;;EAKE,UAAS;EACT,eAAc,EACf","file":"index.css","sourcesContent":["* {\n  box-sizing: border-box;\n}\n\nbody {\n  width: 100%;\n  height: 100%;\n  font-family: 'Avenir Next', sans-serif;\n}\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n  color: magenta;\n}\n"],"sourceRoot":""}]);
 
 // exports
 
@@ -10078,8 +10072,7 @@ function toComment(sourceMap) {
 }
 
 /***/ }),
-/* 6 */,
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -10125,7 +10118,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(8);
+var	fixUrls = __webpack_require__(7);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -10438,7 +10431,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
