@@ -95,3 +95,18 @@ button {
     border-radius: 50%;
   }
 }
+
+.folder-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.link-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 300px
+  margin 10px;
+  padding: 10px;
+  border: 1px solid black;
+}
