@@ -9,10 +9,14 @@ exports.up = function(knex, Promise) {
       table.string('path');
       table.string('short');
       table.date('date');
+
+      table.timestamps(true, true)
     })
   ])
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.dropTable('paths')
+  return Promise.all([
+    knex.schema.dropTable('paths')
+  ])
 };

@@ -1,0 +1,18 @@
+.path-cell {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-end;
+  width: 95%;
+  padding: 10px 20px;
+  margin: 5px 5px 5px 0;
+  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);
+}
+
+.path-title {
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.path-link {
+  font-weight: normal;
+}

@@ -515,69 +515,40 @@ var _jquery = __webpack_require__(3);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var _LinkCell = __webpack_require__(5);
+var _Collections = __webpack_require__(12);
 
-var _LinkCell2 = _interopRequireDefault(_LinkCell);
+var Collections = _interopRequireWildcard(_Collections);
 
 __webpack_require__(9);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (0, _jquery2.default)('.nav').on('click', '.tab', toggleTab);
-(0, _jquery2.default)('.nav').on('animationend', removeRippleAnimation);
-
-didMount(1);
 
 function toggleTab(e) {
-  if ((0, _jquery2.default)(e.target).prop('class') === 'ripple') {
-    return;
+  var tab = (0, _jquery2.default)(e.target).prop('id');
+
+  handleTabClass(tab);
+  renderView(tab);
+}
+
+function renderView(tab) {
+  switch (tab) {
+    case 'tab-1':
+      return Collections.unMount();
+    case 'tab-2':
+      return Collections.unMount();
+    case 'tab-3':
+      return Collections.mount();
   }
+}
 
-  var id = (0, _jquery2.default)(e.target).prop('id');
-  var length = (0, _jquery2.default)('#' + id).children().length;
-
-  var _getBoundingClientRec = this.getBoundingClientRect(),
-      top = _getBoundingClientRec.top;
-
+function handleTabClass(tab) {
   (0, _jquery2.default)('.tab').removeClass('active-tab');
-  (0, _jquery2.default)('#' + id).addClass('active-tab');
-  (0, _jquery2.default)('#' + id).addClass('animate-tab');
-
-  if (!length) {
-    (0, _jquery2.default)('#' + id).append('<div class="ripple"></div>');
-  }
-
-  (0, _jquery2.default)('.ripple').css({
-    top: e.clientY - 1 - top + 'px',
-    left: e.clientX - 1 + 'px'
-  });
+  (0, _jquery2.default)('#' + tab).addClass('active-tab');
 }
-
-function addRippleAnimation(e) {}
-
-function removeRippleAnimation(e) {
-  (0, _jquery2.default)(e.target).parent().removeClass('animate-tab');
-}
-
-function didMount(id) {
-  fetch('api/v1/folders/' + id + '/paths').then(function (res) {
-    return res.json();
-  }).then(function (data) {
-    return getLinks(data);
-  }).catch(function (error) {
-    return console.log(error);
-  });
-}
-
-function getLinks(data) {
-  renderArray(data, 'folder-wrapper', _LinkCell2.default);
-}
-
-var renderArray = function renderArray(array, parent, component) {
-  array.forEach(function (e) {
-    (0, _jquery2.default)('#' + parent).append(component(e));
-  });
-};
 
 /***/ }),
 /* 3 */
@@ -10446,75 +10417,9 @@ module.exports = function (module) {
 };
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-__webpack_require__(6);
-
-var LinkCell = function LinkCell(_ref) {
-  var title = _ref.title,
-      short = _ref.short;
-
-  var link = 'http://localhost:3000/' + short;
-
-  return '\n    <article class="link-cell">\n      <h3 class="link-title">' + title + '</h3>\n      <a class="link" href="/' + short + '">' + link + '</a>\n    </article>\n  ';
-};
-
-exports.default = LinkCell;
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(7);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./LinkCell.scss", function() {
-			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./LinkCell.scss");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(true);
-// imports
-
-
-// module
-exports.push([module.i, ".link-cell {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 300px margin 10px 0;\n  padding: 10px;\n  border: 1px solid black; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/LinkCell.scss"],"names":[],"mappings":"AAAA;EACE,cAAa;EACb,oBAAmB;EACnB,+BAA8B;EAC9B,2BACa;EACb,cAAa;EACb,wBAAuB,EACxB","file":"LinkCell.scss","sourcesContent":[".link-cell {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 300px\n  margin 10px 0;\n  padding: 10px;\n  border: 1px solid black;\n}\n"],"sourceRoot":""}]);
-
-// exports
-
-
-/***/ }),
+/* 5 */,
+/* 6 */,
+/* 7 */,
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10659,6 +10564,316 @@ exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 10
 /***/ (function(module, exports) {
 
 module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNTEuOTEzIDUxLjkxMyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEuOTEzIDUxLjkxMzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnPgoJCTxnPgoJCQk8cGF0aCBkPSJNMjEuMzY3LDEwLjcxaC0wLjcwM2MtMC44MjQsMC0xLjQ5MSwwLjYxMi0xLjQ5MSwxLjM2OHY1Ljc5NGgzLjY4NnYtNS43OTRDMjIuODU4LDExLjMyMywyMi4xOTEsMTAuNzEsMjEuMzY3LDEwLjcxeiIgZmlsbD0iIzMwM0Y5RiIvPgoJCQk8cGF0aCBkPSJNMzEuMjQ5LDEwLjcxaC0wLjcwNGMtMC44MjIsMC0xLjQ5LDAuNjEyLTEuNDksMS4zNjh2NS43OTRoMy42ODd2LTUuNzk0QzMyLjc0LDExLjMyMywzMi4wNzMsMTAuNzEsMzEuMjQ5LDEwLjcxeiIgZmlsbD0iIzMwM0Y5RiIvPgoJCQk8cGF0aCBkPSJNMjUuOTU3LDAuNTc3QzExLjY0NCwwLjU3NywwLDEyLjIyMSwwLDI2LjUzNGMwLDYuOTEsMi42ODQsMTMuNDEzLDcuNTU4LDE4LjMxMWMyLjg4NiwyLjksNi40NTgsNS4xMDQsMTAuMzI5LDYuMzY2ICAgICBjMC4yNTgsMC4wODUsMC41MiwwLjEyNSwwLjc3NywwLjEyNWMxLjA1MiwwLDIuMDMxLTAuNjcsMi4zNzYtMS43MjVjMC40MjktMS4zMTMtMC4yODgtMi43MjUtMS42LTMuMTUyICAgICBjLTMuMTIzLTEuMDIxLTYuMDA2LTIuNzk5LTguMzM3LTUuMTQyYy0zLjkzNS0zLjk1NC02LjEwMi05LjIwNC02LjEwMi0xNC43ODNjMC0xMS41NTYsOS40MDEtMjAuOTU3LDIwLjk1Ny0yMC45NTcgICAgIGMxMS41NTYsMCwyMC45NTcsOS40MDEsMjAuOTU3LDIwLjk1N2MwLDUuNi0yLjE3OSwxMC44NTktNi4xMzQsMTQuODE2Yy0xLjUxOSwxLjM2Mi01LjI4Niw0LjEwNC03LjU0OSw0LjEwNCAgICAgYy0xLjE2MiwwLTIuMDMtMC4zNjYtMi43MzYtMS4xNWMtMS43ODktMS45OTMtMi4xODItNi4wMjgtMi4xNjUtOC44NGM0LjMzOS0wLjIxOSw3Ljc5My0zLjc5Niw3Ljc5My04LjE4OHYtNy43OEgxNS43OXY3Ljc4ICAgICBjMCw0LjMwNywzLjMxOCw3LjgzMiw3LjUzNyw4LjE3N2MtMC4wMjYsMy4zNSwwLjQ0NCw4Ljg0LDMuNDM5LDEyLjE4NWMxLjY1MiwxLjg0NSwzLjg5LDIuODE4LDYuNDY2LDIuODE4ICAgICBjNC44MzYsMCwxMC4zNDItNC44ODUsMTAuOTUyLTUuNDRsMC4wOC0wLjA3NmM0LjkzNC00LjkwNyw3LjY0OC0xMS40NDIsNy42NDgtMTguNDAyQzUxLjkxNCwxMi4yMjEsNDAuMjcsMC41NzcsMjUuOTU3LDAuNTc3eiIgZmlsbD0iIzMwM0Y5RiIvPgoJCTwvZz4KCTwvZz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K"
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.unMount = exports.mount = undefined;
+
+var _jquery = __webpack_require__(3);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _helpers = __webpack_require__(15);
+
+var _FolderCell = __webpack_require__(16);
+
+var _FolderCell2 = _interopRequireDefault(_FolderCell);
+
+var _PathCell = __webpack_require__(20);
+
+var _PathCell2 = _interopRequireDefault(_PathCell);
+
+__webpack_require__(13);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var mount = exports.mount = function mount() {
+  (0, _helpers.renderToParent)('app', component);
+  viewDidMount();
+};
+
+var unMount = exports.unMount = function unMount() {
+  (0, _jquery2.default)('#collections').off('click');
+  (0, _jquery2.default)('.collections-wrapper').remove();
+};
+
+var viewDidMount = function viewDidMount() {
+  fetchFolders();
+  (0, _jquery2.default)('#collections').on('click', '.folder-cell', handleClick);
+};
+
+var component = function component() {
+  return '\n    <section class="collections-wrapper">\n      <section id="collections" class="collections-folders"></section>\n      <section id="collections-paths" class="collections-paths"></section>\n    </section>\n    ';
+};
+
+var fetchFolders = function fetchFolders() {
+  fetch('api/v1/folders').then(function (res) {
+    return res.json();
+  }).then(function (folders) {
+    return (0, _helpers.renderArray)(folders, 'collections', _FolderCell2.default);
+  }).catch(function (error) {
+    return console.log(error);
+  });
+};
+
+var fetchPaths = function fetchPaths(id) {
+  fetch('api/v1/folders/' + id + '/paths').then(function (res) {
+    return res.json();
+  }).then(function (paths) {
+    (0, _helpers.renderArray)(paths, 'collections-paths', _PathCell2.default);
+    handleAnimation((0, _jquery2.default)('.collections-wrapper'));
+  }).catch(function (error) {
+    return console.log(error);
+  });
+};
+
+var getId = function getId(raw) {
+  return raw.split('-')[1];
+};
+
+var handleClick = function handleClick(_ref) {
+  var target = _ref.target,
+      className = _ref.target.className;
+
+  var cell = className === 'folder-title' ? (0, _jquery2.default)(target).parent() : (0, _jquery2.default)(target);
+  var id = getId(cell.prop('id'));
+
+  fetchPaths(id);
+};
+
+var handleAnimation = function handleAnimation(el) {
+  if (el.hasClass('collections-expand')) {
+    el.removeClass('collections-expand');
+    setTimeout(function () {
+      return el.addClass('collections-expand');
+    }, 300);
+  } else {
+    el.addClass('collections-expand');
+  }
+};
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(14);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./Collections.scss", function() {
+			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./Collections.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(true);
+// imports
+
+
+// module
+exports.push([module.i, "@keyframes appear {\n  from {\n    transform: scaleY(0); }\n  to {\n    transform: scaleY(100%); } }\n\n.collections-wrapper {\n  display: flex;\n  width: 600px;\n  height: 500px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n  z-index: 0;\n  overflow: hidden; }\n\n.collections-folders {\n  display: flex;\n  flex-direction: column;\n  width: 40%;\n  height: 100%;\n  background-color: #3F51B5;\n  overflow: scroll;\n  z-index: 1000; }\n\n.collections-paths {\n  display: flex;\n  flex-direction: column;\n  width: 60%;\n  height: 100%;\n  z-index: 900;\n  transform: translateX(-95%);\n  transition: all 0.3s; }\n\n.collections-expand .collections-paths {\n  transform: translateX(0%); }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/Collections.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE;IAAO,qBAAoB,EAAA;EAC3B;IAAO,wBAAuB,EAAA,EAAA;;AAGhC;EACE,cAAa;EACb,aAAY;EACZ,cAAa;EACb,oBAAmB;EACnB,uBAAsB;EACtB,2EAA0E;EAC1E,WAAU;EACV,iBAAgB,EACjB;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,WAAU;EACV,aAAY;EACZ,0BCtB4B;EDuB5B,iBAAgB;EAChB,cAAa,EACd;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,WAAU;EACV,aAAY;EACZ,aAAY;EACZ,4BAA2B;EAC3B,qBAAoB,EACrB;;AAED;EACE,0BAAyB,EAC1B","file":"Collections.scss","sourcesContent":["@import \"../../utils/palette\";\n\n@keyframes appear {\n  from { transform: scaleY(0); }\n  to   { transform: scaleY(100%); }\n}\n\n.collections-wrapper {\n  display: flex;\n  width: 600px;\n  height: 500px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n  z-index: 0;\n  overflow: hidden;\n}\n\n.collections-folders {\n  display: flex;\n  flex-direction: column;\n  width: 40%;\n  height: 100%;\n  background-color: $primary-color;\n  overflow: scroll;\n  z-index: 1000;\n}\n\n.collections-paths {\n  display: flex;\n  flex-direction: column;\n  width: 60%;\n  height: 100%;\n  z-index: 900;\n  transform: translateX(-95%);\n  transition: all 0.3s;\n}\n\n.collections-expand .collections-paths {\n  transform: translateX(0%);\n}\n","$primary-color-dark:   #303F9F;\n$primary-color:        #3F51B5;\n$primary-color-light:  #C5CAE9;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #448AFF;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
+
+// exports
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.renderToParent = exports.renderArray = undefined;
+
+var _jquery = __webpack_require__(3);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var renderArray = exports.renderArray = function renderArray(array, parent, component) {
+  (0, _jquery2.default)('#' + parent).html('');
+
+  array.forEach(function (e) {
+    (0, _jquery2.default)('#' + parent).append(component(e));
+  });
+};
+
+var renderToParent = exports.renderToParent = function renderToParent(parent, component) {
+  (0, _jquery2.default)('#' + parent).append(component());
+};
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+__webpack_require__(17);
+
+var FolderCell = function FolderCell(_ref) {
+  var id = _ref.id,
+      name = _ref.name;
+
+  return '\n    <article id="folder-' + id + '" class="folder-cell">\n      <h3 class="folder-title">' + name + '</h3>\n    </article>\n  ';
+};
+
+exports.default = FolderCell;
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(18);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./FolderCell.scss", function() {
+			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./FolderCell.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(true);
+// imports
+
+
+// module
+exports.push([module.i, ".folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  height: 50px;\n  border-bottom: 1px solid #BDBDBD;\n  color: #FFF;\n  cursor: pointer; }\n\n.folder-title {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/FolderCell.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,kBAAiB;EACjB,aAAY;EACZ,iCCD4B;EDE5B,YAAW;EACX,gBAAe,EAChB;;AAED;EACE,oBAAmB,EACpB","file":"FolderCell.scss","sourcesContent":["@import \"../../utils/palette\";\n\n.folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  height: 50px;\n  border-bottom: 1px solid $divider-color;\n  color: #FFF;\n  cursor: pointer;\n}\n\n.folder-title {\n  font-weight: normal;\n}\n","$primary-color-dark:   #303F9F;\n$primary-color:        #3F51B5;\n$primary-color-light:  #C5CAE9;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #448AFF;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
+
+// exports
+
+
+/***/ }),
+/* 19 */,
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+__webpack_require__(21);
+
+var PathCell = function PathCell(_ref) {
+  var id = _ref.id,
+      title = _ref.title,
+      short = _ref.short,
+      path = _ref.path,
+      date = _ref.date;
+
+  var link = '' + window.location.href + short;
+
+  return '\n    <article id="path-' + id + '" class="path-cell">\n      <h3 class="path-title">' + title + ':</h3>\n      <a class="path-link" href="' + link + '" target="_blank">' + link + '</a>\n    </article>\n  ';
+};
+
+exports.default = PathCell;
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(22);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./PathCell.scss", function() {
+			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./PathCell.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(true);
+// imports
+
+
+// module
+exports.push([module.i, ".path-cell {\n  display: flex;\n  flex-direction: column;\n  align-self: flex-end;\n  width: 95%;\n  padding: 10px 20px;\n  margin: 5px 5px 5px 0;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1); }\n\n.path-title {\n  font-size: 16px;\n  font-weight: normal; }\n\n.path-link {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/PathCell.scss"],"names":[],"mappings":"AAAA;EACE,cAAa;EACb,uBAAsB;EACtB,qBAAoB;EACpB,WAAU;EACV,mBAAkB;EAClB,sBAAqB;EACrB,2EAA0E,EAC3E;;AAED;EACE,gBAAe;EACf,oBAAmB,EACpB;;AAED;EACE,oBAAmB,EACpB","file":"PathCell.scss","sourcesContent":[".path-cell {\n  display: flex;\n  flex-direction: column;\n  align-self: flex-end;\n  width: 95%;\n  padding: 10px 20px;\n  margin: 5px 5px 5px 0;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n}\n\n.path-title {\n  font-size: 16px;\n  font-weight: normal;\n}\n\n.path-link {\n  font-weight: normal;\n}\n"],"sourceRoot":""}]);
+
+// exports
+
 
 /***/ })
 /******/ ]);
