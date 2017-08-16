@@ -78,6 +78,40 @@ __webpack_require__(3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+(0, _jquery2.default)('.nav').on('click', '.tab', toggleTab);
+(0, _jquery2.default)('.nav').on('animationend', removeRippleAnimation);
+
+function toggleTab(e) {
+  if ((0, _jquery2.default)(e.target).prop('class') === 'ripple') {
+    return;
+  }
+
+  var id = (0, _jquery2.default)(e.target).prop('id');
+  var length = (0, _jquery2.default)('#' + id).children().length;
+
+  var _getBoundingClientRec = this.getBoundingClientRect(),
+      top = _getBoundingClientRec.top;
+
+  (0, _jquery2.default)('.tab').removeClass('active-tab');
+  (0, _jquery2.default)('#' + id).addClass('active-tab');
+  (0, _jquery2.default)('#' + id).addClass('animate-tab');
+
+  if (!length) {
+    (0, _jquery2.default)('#' + id).append('<div class="ripple"></div>');
+  }
+
+  (0, _jquery2.default)('.ripple').css({
+    top: e.clientY - 1 - top + 'px',
+    left: e.clientX - 1 + 'px'
+  });
+}
+
+function addRippleAnimation(e) {}
+
+function removeRippleAnimation(e) {
+  (0, _jquery2.default)(e.target).parent().removeClass('animate-tab');
+}
+
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -9959,14 +9993,14 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(7)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!../../node_modules/css-loader/index.js??ref--2-1!../../node_modules/sass-loader/lib/loader.js??ref--2-2!./index.css", function() {
-			var newContent = require("!!../../node_modules/css-loader/index.js??ref--2-1!../../node_modules/sass-loader/lib/loader.js??ref--2-2!./index.css");
+		module.hot.accept("!!../../node_modules/css-loader/index.js??ref--2-1!../../node_modules/sass-loader/lib/loader.js??ref--2-2!./index.scss", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js??ref--2-1!../../node_modules/sass-loader/lib/loader.js??ref--2-2!./index.scss");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -9984,7 +10018,7 @@ exports = module.exports = __webpack_require__(5)(true);
 
 
 // module
-exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 100%;\n  height: 100%;\n  font-family: 'Avenir Next', sans-serif; }\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n  color: magenta; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/styles/src/styles/index.css"],"names":[],"mappings":"AAAA;EACE,uBAAsB,EACvB;;AAED;EACE,YAAW;EACX,aAAY;EACZ,uCAAsC,EACvC;;AAED;;;;;EAKE,UAAS;EACT,eAAc,EACf","file":"index.css","sourcesContent":["* {\n  box-sizing: border-box;\n}\n\nbody {\n  width: 100%;\n  height: 100%;\n  font-family: 'Avenir Next', sans-serif;\n}\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n  color: magenta;\n}\n"],"sourceRoot":""}]);
+exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif; }\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0; }\n\nbutton {\n  cursor: pointer; }\n\n.header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 60px;\n  padding: 0 20px;\n  background-color: #3F51B5;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3); }\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden; }\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(" + __webpack_require__(6) + ");\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px; }\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid #3F51B5;\n  color: #BDBDBD;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s; }\n  .tab:focus {\n    outline: none; }\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF; }\n\n@keyframes animateTab {\n  to {\n    transform: scale(100);\n    opacity: 0; } }\n\n.ripple {\n  position: absolute;\n  background-color: red;\n  width: 100px;\n  height: 100px; }\n\n.animate-tab .ripple {\n  width: 2px;\n  height: 2px;\n  animation: 0.5s animateTab;\n  background-color: red;\n  border-radius: 50%; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/styles/src/styles/index.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/styles/src/styles/_palette.scss"],"names":[],"mappings":"AAEA;EACE,uBAAsB,EACvB;;AAED;EACE,YAAW;EACX,aAAY;EACZ,UAAS;EACT,uCAAsC,EACvC;;AAED;;;;;EAKE,UAAS,EACV;;AAED;EACE,gBAAe,EAChB;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,+BAA8B;EAC9B,YAAW;EACX,aAAY;EACZ,gBAAe;EACf,0BC/B4B;EDgC5B,mEAAkE,EACnE;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,wBAAuB;EACvB,aAAY;EACV,iBAAgB,EACnB;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,gDAAyC;EACzC,6BAA4B;EAC5B,6BAA4B;EAC5B,yBAAwB;EACxB,mBAAkB,EACnB;;AAED;EACE,aAAY;EACZ,aAAY;EACZ,eAAc;EACd,8BAA6B;EAC7B,iCC3D4B;ED4D5B,eCtD4B;EDuD5B,kBAAiB;EACjB,gBAAe;EACf,sBAAqB;EACrB,iBAAgB;EAChB,qBAAoB,EAIrB;EAfD;IAaI,cAAa,EACd;;AAGH;EACE,8BAA6B;EAC7B,YAAW,EACZ;;AAED;EACE;IAAK,sBAAqB;IAAE,WAAU,EAAA,EAAA;;AAGxC;EACE,mBAAkB;EAClB,sBAAqB;EACrB,aAAY;EACZ,cAAa,EACd;;AAED;EAEI,WAAU;EACV,YAAW;EACX,2BAA0B;EAC1B,sBAAqB;EACrB,mBAAkB,EACnB","file":"index.scss","sourcesContent":["@import \"palette\";\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif;\n}\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n}\n\nbutton {\n  cursor: pointer;\n}\n\n.header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 60px;\n  padding: 0 20px;\n  background-color: $primary-color;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n}\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n    overflow: hidden;\n}\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(../assets/logo.svg);\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px;\n}\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid $primary-color;\n  color: $divider-color;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s;\n  &:focus {\n    outline: none;\n  }\n}\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF;\n}\n\n@keyframes animateTab {\n  to { transform: scale(100); opacity: 0; }\n}\n\n.ripple {\n  position: absolute;\n  background-color: red;\n  width: 100px;\n  height: 100px;\n}\n\n.animate-tab {\n  .ripple {\n    width: 2px;\n    height: 2px;\n    animation: 0.5s animateTab;\n    background-color: red;\n    border-radius: 50%;\n  }\n}\n","$primary-color-dark:   #303F9F;\n$primary-color:        #3F51B5;\n$primary-color-light:  #C5CAE9;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #448AFF;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
 
 // exports
 
@@ -10073,6 +10107,12 @@ function toComment(sourceMap) {
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNTEuOTEzIDUxLjkxMyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEuOTEzIDUxLjkxMzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnPgoJCTxnPgoJCQk8cGF0aCBkPSJNMjEuMzY3LDEwLjcxaC0wLjcwM2MtMC44MjQsMC0xLjQ5MSwwLjYxMi0xLjQ5MSwxLjM2OHY1Ljc5NGgzLjY4NnYtNS43OTRDMjIuODU4LDExLjMyMywyMi4xOTEsMTAuNzEsMjEuMzY3LDEwLjcxeiIgZmlsbD0iIzMwM0Y5RiIvPgoJCQk8cGF0aCBkPSJNMzEuMjQ5LDEwLjcxaC0wLjcwNGMtMC44MjIsMC0xLjQ5LDAuNjEyLTEuNDksMS4zNjh2NS43OTRoMy42ODd2LTUuNzk0QzMyLjc0LDExLjMyMywzMi4wNzMsMTAuNzEsMzEuMjQ5LDEwLjcxeiIgZmlsbD0iIzMwM0Y5RiIvPgoJCQk8cGF0aCBkPSJNMjUuOTU3LDAuNTc3QzExLjY0NCwwLjU3NywwLDEyLjIyMSwwLDI2LjUzNGMwLDYuOTEsMi42ODQsMTMuNDEzLDcuNTU4LDE4LjMxMWMyLjg4NiwyLjksNi40NTgsNS4xMDQsMTAuMzI5LDYuMzY2ICAgICBjMC4yNTgsMC4wODUsMC41MiwwLjEyNSwwLjc3NywwLjEyNWMxLjA1MiwwLDIuMDMxLTAuNjcsMi4zNzYtMS43MjVjMC40MjktMS4zMTMtMC4yODgtMi43MjUtMS42LTMuMTUyICAgICBjLTMuMTIzLTEuMDIxLTYuMDA2LTIuNzk5LTguMzM3LTUuMTQyYy0zLjkzNS0zLjk1NC02LjEwMi05LjIwNC02LjEwMi0xNC43ODNjMC0xMS41NTYsOS40MDEtMjAuOTU3LDIwLjk1Ny0yMC45NTcgICAgIGMxMS41NTYsMCwyMC45NTcsOS40MDEsMjAuOTU3LDIwLjk1N2MwLDUuNi0yLjE3OSwxMC44NTktNi4xMzQsMTQuODE2Yy0xLjUxOSwxLjM2Mi01LjI4Niw0LjEwNC03LjU0OSw0LjEwNCAgICAgYy0xLjE2MiwwLTIuMDMtMC4zNjYtMi43MzYtMS4xNWMtMS43ODktMS45OTMtMi4xODItNi4wMjgtMi4xNjUtOC44NGM0LjMzOS0wLjIxOSw3Ljc5My0zLjc5Niw3Ljc5My04LjE4OHYtNy43OEgxNS43OXY3Ljc4ICAgICBjMCw0LjMwNywzLjMxOCw3LjgzMiw3LjUzNyw4LjE3N2MtMC4wMjYsMy4zNSwwLjQ0NCw4Ljg0LDMuNDM5LDEyLjE4NWMxLjY1MiwxLjg0NSwzLjg5LDIuODE4LDYuNDY2LDIuODE4ICAgICBjNC44MzYsMCwxMC4zNDItNC44ODUsMTAuOTUyLTUuNDRsMC4wOC0wLjA3NmM0LjkzNC00LjkwNyw3LjY0OC0xMS40NDIsNy42NDgtMTguNDAyQzUxLjkxNCwxMi4yMjEsNDAuMjcsMC41NzcsMjUuOTU3LDAuNTc3eiIgZmlsbD0iIzMwM0Y5RiIvPgoJCTwvZz4KCTwvZz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K"
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -10118,7 +10158,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(7);
+var	fixUrls = __webpack_require__(8);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -10431,7 +10471,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
