@@ -39,6 +39,7 @@ button {
   align-items: center;
   justify-content: center;
   height: 100%;
+    overflow: hidden;
 }
 
 .logo {
@@ -62,6 +63,7 @@ button {
   font-weight: bold;
   font-size: 14px;
   letter-spacing: 0.5px;
+  overflow: hidden;
   transition: all 0.1s;
   &:focus {
     outline: none;
@@ -71,4 +73,25 @@ button {
 .active-tab {
   border-bottom: 4px solid #FFF;
   color: #FFF;
+}
+
+@keyframes animateTab {
+  to { transform: scale(100); opacity: 0; }
+}
+
+.ripple {
+  position: absolute;
+  background-color: red;
+  width: 100px;
+  height: 100px;
+}
+
+.animate-tab {
+  .ripple {
+    width: 2px;
+    height: 2px;
+    animation: 0.5s animateTab;
+    background-color: red;
+    border-radius: 50%;
+  }
 }
