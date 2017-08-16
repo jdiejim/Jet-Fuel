@@ -1,10 +1,11 @@
 import $ from 'jquery';
-import './styles/index.scss';
+import LinkCell from './components/LinkCell';
+import './index.scss';
 
 $('.nav').on('click', '.tab', toggleTab);
 $('.nav').on('animationend', removeRippleAnimation);
 
-didMount()
+didMount(1)
 
 function toggleTab(e) {
   if ($(e.target).prop('class') === 'ripple') {
@@ -37,24 +38,20 @@ function removeRippleAnimation(e) {
   $(e.target).parent().removeClass('animate-tab');
 }
 
-function didMount() {
-  fetch('api/v1/folders/3/paths')
+function didMount(id) {
+  fetch(`api/v1/folders/${id}/paths`)
     .then(res => res.json())
     .then(data => getLinks(data))
     .catch(error => console.log(error))
 }
 
 function getLinks(data) {
-  data.forEach(e => {
-    $('.folder-wrapper').append(LinkCell(e))
-  })
+  renderArray(data, 'folder-wrapper', LinkCell)
 }
 
-function LinkCell(cell) {
-  return `
-    <article class="link-cell">
-      <h3>${cell.title}: </h3>
-      <a href="/${cell.short}">http://localhost:3000/${cell.short}</a>
-    </article>
-  `;
+
+const renderArray = (array, parent, component) => {
+  array.forEach(e => {
+    $(`#${parent}`).append(component(e))
+  });
 }

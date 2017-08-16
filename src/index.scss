@@ -1,4 +1,4 @@
-@import "palette";
+@import "./utils/palette";
 
 * {
   box-sizing: border-box;
@@ -46,7 +46,7 @@ button {
   display: flex;
   align-items: center;
   color: #FFF;
-  background-image: url(../assets/logo.svg);
+  background-image: url(./assets/logo.svg);
   background-position: 40% 50%;
   background-repeat: no-repeat;
   background-size: contain;
@@ -96,17 +96,10 @@ button {
   }
 }
 
-.folder-wrapper {
+#folder-wrapper {
   display: flex;
   flex-direction: column;
-}
-
-.link-cell {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 300px
-  margin 10px;
-  padding: 10px;
-  border: 1px solid black;
+  width: 400px;
+  height: 800px;
+  margin: 0 auto;
 }

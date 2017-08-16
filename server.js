@@ -4,7 +4,6 @@ const cors = require('express-cors');
 const bodyParser = require('body-parser');
 const router = require('./router');
 const pathsController = require('./controllers/pathsController');
-
 const app = express();
 
 app.locals.title = 'Jet Fuel';
