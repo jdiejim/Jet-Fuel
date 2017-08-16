@@ -16,7 +16,7 @@ exports.create = (req, res, next) => {
 }
 
 exports.redirectPath = (req, res, next) => {
-  Path.getPath({ id: req.params.id })
+  Path.getPath({ short: req.params.id })
     .then(data => res.redirect(301, data[0].path))
     .catch(error => res.status(500).json({ error }));
 }

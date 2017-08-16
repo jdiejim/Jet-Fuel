@@ -7,6 +7,7 @@ exports.up = function(knex, Promise) {
       table.foreign('folder_id').references('folders.id');
       table.string('title');
       table.string('path');
+      table.string('short');
       table.date('date');
     })
   ])

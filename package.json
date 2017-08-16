@@ -19,7 +19,8 @@
     "jquery": "^3.2.1",
     "knex": "^0.13.0",
     "moment": "^2.18.1",
-    "pg": "^7.1.2"
+    "pg": "^7.1.2",
+    "short-hash": "^1.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",
