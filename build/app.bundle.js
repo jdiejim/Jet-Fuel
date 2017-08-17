@@ -519,6 +519,10 @@ var _Collections = __webpack_require__(12);
 
 var Collections = _interopRequireWildcard(_Collections);
 
+var _ShortenForm = __webpack_require__(23);
+
+var ShortenForm = _interopRequireWildcard(_ShortenForm);
+
 __webpack_require__(9);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -526,6 +530,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (0, _jquery2.default)('.nav').on('click', '.tab', toggleTab);
+
+ShortenForm.mount();
 
 function toggleTab(e) {
   var tab = (0, _jquery2.default)(e.target).prop('id');
@@ -537,10 +543,13 @@ function toggleTab(e) {
 function renderView(tab) {
   switch (tab) {
     case 'tab-1':
+      ShortenForm.unMount();
       return Collections.unMount();
     case 'tab-2':
-      return Collections.unMount();
+      Collections.unMount();
+      return ShortenForm.mount();
     case 'tab-3':
+      ShortenForm.unMount();
       return Collections.mount();
   }
 }
@@ -10871,6 +10880,237 @@ exports = module.exports = __webpack_require__(0)(true);
 
 // module
 exports.push([module.i, ".path-cell {\n  display: flex;\n  flex-direction: column;\n  align-self: flex-end;\n  width: 95%;\n  padding: 10px 20px;\n  margin: 5px 5px 5px 0;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1); }\n\n.path-title {\n  font-size: 16px;\n  font-weight: normal; }\n\n.path-link {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/PathCell.scss"],"names":[],"mappings":"AAAA;EACE,cAAa;EACb,uBAAsB;EACtB,qBAAoB;EACpB,WAAU;EACV,mBAAkB;EAClB,sBAAqB;EACrB,2EAA0E,EAC3E;;AAED;EACE,gBAAe;EACf,oBAAmB,EACpB;;AAED;EACE,oBAAmB,EACpB","file":"PathCell.scss","sourcesContent":[".path-cell {\n  display: flex;\n  flex-direction: column;\n  align-self: flex-end;\n  width: 95%;\n  padding: 10px 20px;\n  margin: 5px 5px 5px 0;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n}\n\n.path-title {\n  font-size: 16px;\n  font-weight: normal;\n}\n\n.path-link {\n  font-weight: normal;\n}\n"],"sourceRoot":""}]);
+
+// exports
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.unMount = exports.mount = undefined;
+
+var _jquery = __webpack_require__(3);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _helpers = __webpack_require__(15);
+
+var _ShortenFolderCell = __webpack_require__(24);
+
+var _ShortenFolderCell2 = _interopRequireDefault(_ShortenFolderCell);
+
+__webpack_require__(27);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var mount = exports.mount = function mount() {
+  (0, _helpers.renderToParent)('app', component);
+  viewDidMount();
+};
+
+var unMount = exports.unMount = function unMount() {
+  // $('#collections').off('click')
+  (0, _jquery2.default)('.shorten-wrapper').remove();
+};
+
+var viewDidMount = function viewDidMount() {
+  fetchFolders();
+  (0, _jquery2.default)('#save-folder').on('click', saveFolder);
+  (0, _jquery2.default)('#shorten-folders').on('click', '.save-btn', savePath);
+};
+
+var component = function component() {
+  return '\n    <section class="shorten-wrapper">\n      <section class="path-form">\n        <input id="input-title" class="input-title" type="text" name="" value="">\n        <input id="input-path" class="input-path" type="text" name="" value="">\n        <input id="input-folder" class="input-folder" type="text" name="" value="">\n        <button id="save-folder" class="save-folder">Create New Folder</button>\n      </section>\n      <section id="shorten-folders" class="shorten-folders"></section>\n    </section>\n    ';
+};
+
+var fetchFolders = function fetchFolders() {
+  fetch('api/v1/folders').then(function (res) {
+    return res.json();
+  }).then(function (folders) {
+    return (0, _helpers.renderArray)(folders, 'shorten-folders', _ShortenFolderCell2.default);
+  }).catch(function (error) {
+    return console.log(error);
+  });
+};
+
+var postPath = function postPath(id, body) {
+  fetch('api/v1/folders/' + id + '/paths', {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' }
+  }).then(function (res) {
+    return res.json();
+  }).then(function (path) {
+    console.log(path);
+    appendShort(path);
+  }).catch(function (error) {
+    return console.log(error);
+  });
+};
+
+var postFolder = function postFolder(body) {
+  fetch('api/v1/folders', {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' }
+  }).then(function (res) {
+    return res.json();
+  }).then(function () {
+    return fetchFolders();
+  }).catch(function (error) {
+    return console.log(error);
+  });
+};
+
+var getId = function getId(raw) {
+  return raw.split('-')[1];
+};
+
+var getInputs = function getInputs() {
+  var title = (0, _jquery2.default)('#input-title').val();
+  var path = (0, _jquery2.default)('#input-path').val();
+
+  return { title: title, path: path };
+};
+
+var savePath = function savePath(e) {
+  var parent = (0, _jquery2.default)(e.target).parent();
+  var id = getId(parent.prop('id'));
+  var body = getInputs();
+
+  postPath(id, body);
+};
+
+var saveFolder = function saveFolder() {
+  var name = (0, _jquery2.default)('#input-folder').val();
+
+  postFolder({ name: name });
+};
+
+var appendShort = function appendShort(_ref) {
+  var short = _ref.short;
+
+  var link = '' + window.location.href + short;
+  var component = '<a class="path-link" href="' + link + '" target="_blank">' + link + '</a>';
+
+  (0, _jquery2.default)('.shorten-wrapper').append(component);
+};
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+__webpack_require__(25);
+
+var ShortenFolderCell = function ShortenFolderCell(_ref) {
+  var id = _ref.id,
+      name = _ref.name;
+
+  return '\n    <article id="folder-' + id + '" class="shorten-folder-cell">\n      <h3 class="shorten-folder-title">' + name + '</h3>\n      <button class="save-btn">Save</button>\n    </article>\n  ';
+};
+
+exports.default = ShortenFolderCell;
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(26);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenFolderCell.scss", function() {
+			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenFolderCell.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(true);
+// imports
+
+
+// module
+exports.push([module.i, ".shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  height: 50px;\n  border-bottom: 1px solid #BDBDBD; }\n\n.shorten-folder-title {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/ShortenFolderCell.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,kBAAiB;EACjB,aAAY;EACZ,iCCD4B,EDE7B;;AAED;EACE,oBAAmB,EACpB","file":"ShortenFolderCell.scss","sourcesContent":["@import \"../../utils/palette\";\n\n.shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  height: 50px;\n  border-bottom: 1px solid $divider-color;\n}\n\n.shorten-folder-title {\n  font-weight: normal;\n}\n","$primary-color-dark:   #303F9F;\n$primary-color:        #3F51B5;\n$primary-color-light:  #C5CAE9;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #448AFF;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
+
+// exports
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(28);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss", function() {
+			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(true);
+// imports
+
+
+// module
+exports.push([module.i, "@keyframes appear {\n  from {\n    transform: scaleY(0); }\n  to {\n    transform: scaleY(100%); } }\n\n.shorten-wrapper {\n  display: flex;\n  width: 600px;\n  height: 500px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n  z-index: 0;\n  overflow: hidden; }\n\n.path-form {\n  display: flex;\n  flex-direction: column;\n  width: 40%;\n  height: 100%;\n  background-color: #3F51B5;\n  overflow: scroll;\n  z-index: 1000; }\n\n.shorten-folders {\n  display: flex;\n  flex-direction: column;\n  width: 60%;\n  height: 100%;\n  z-index: 900;\n  transition: all 0.3s; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/ShortenForm.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE;IAAO,qBAAoB,EAAA;EAC3B;IAAO,wBAAuB,EAAA,EAAA;;AAGhC;EACE,cAAa;EACb,aAAY;EACZ,cAAa;EACb,oBAAmB;EACnB,uBAAsB;EACtB,2EAA0E;EAC1E,WAAU;EACV,iBAAgB,EACjB;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,WAAU;EACV,aAAY;EACZ,0BCtB4B;EDuB5B,iBAAgB;EAChB,cAAa,EACd;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,WAAU;EACV,aAAY;EACZ,aAAY;EACZ,qBAAoB,EACrB","file":"ShortenForm.scss","sourcesContent":["@import \"../../utils/palette\";\n\n@keyframes appear {\n  from { transform: scaleY(0); }\n  to   { transform: scaleY(100%); }\n}\n\n.shorten-wrapper {\n  display: flex;\n  width: 600px;\n  height: 500px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n  z-index: 0;\n  overflow: hidden;\n}\n\n.path-form {\n  display: flex;\n  flex-direction: column;\n  width: 40%;\n  height: 100%;\n  background-color: $primary-color;\n  overflow: scroll;\n  z-index: 1000;\n}\n\n.shorten-folders {\n  display: flex;\n  flex-direction: column;\n  width: 60%;\n  height: 100%;\n  z-index: 900;\n  transition: all 0.3s;\n}\n","$primary-color-dark:   #303F9F;\n$primary-color:        #3F51B5;\n$primary-color-light:  #C5CAE9;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #448AFF;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
 
 // exports
 
