@@ -4,36 +4,20 @@ import ShortenFolderCell from './ShortenFolderCell';
 import './styles/ShortenForm.scss';
 
 export const mount = () => {
-  renderToParent('app', component);
   viewDidMount();
 }
 
-export const unMount = () => {
-  // $('#collections').off('click')
-  $('.shorten-wrapper').remove();
-}
-
-const viewDidMount = () => {
-  fetchFolders();
+export const loadEvents = () => {
   $('#save-folder').on('click', saveFolder);
   $('#shorten-folders').on('click', '.save-btn', savePath);
 }
 
-const component = () => {
-  return `
-    <section class="shorten-wrapper">
-      <section class="path-form">
-        <input id="input-title" class="input-title" type="text" name="" value="">
-        <input id="input-path" class="input-path" type="text" name="" value="">
-        <input id="input-folder" class="input-folder" type="text" name="" value="">
-        <button id="save-folder" class="save-folder">Create New Folder</button>
-      </section>
-      <section id="shorten-folders" class="shorten-folders"></section>
-    </section>
-    `
+const viewDidMount = () => {
+  fetchFolders();
 }
 
 const fetchFolders = () => {
+  console.log('fetching');
   fetch('api/v1/folders')
     .then(res => res.json())
     .then(folders => renderArray(folders, 'shorten-folders', ShortenFolderCell))
@@ -74,12 +58,18 @@ const getInputs = () => {
   return { title, path };
 }
 
+const clearInputs = () => {
+$('#input-title').val('');
+$('#input-path').val('');
+}
+
 const savePath = (e) => {
   const parent = $(e.target).parent();
   const id = getId(parent.prop('id'));
   const body = getInputs();
 
   postPath(id, body);
+  clearInputs()
 }
 
 const saveFolder = () => {

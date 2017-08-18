@@ -3,9 +3,10 @@ import * as Collections from './components/Collections';
 import * as ShortenForm from './components/ShortenForm';
 import './index.scss';
 
-$('.nav').on('click', '.tab', toggleTab);
-
+ShortenForm.loadEvents();
 ShortenForm.mount();
+
+$('.nav').on('click', '.tab', toggleTab);
 
 function toggleTab(e) {
   const tab = $(e.target).prop('id');
@@ -17,12 +18,9 @@ function toggleTab(e) {
 function renderView(tab) {
   switch (tab) {
     case 'tab-1':
-      ShortenForm.unMount();
-      return Collections.unMount();
-    case 'tab-2':
       Collections.unMount();
       return ShortenForm.mount();
-    case 'tab-3':
+    case 'tab-2':
       ShortenForm.unMount();
       return Collections.mount();
   }
