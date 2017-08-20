@@ -6,13 +6,17 @@
 }
 
 .shorten-wrapper {
-  display: flex;
+  display: none;
   flex-direction: column;
   width: 700px;
   height: 300px;
   margin: 50px auto 0;
   animation: appear 0.2s;
   background-color: red;
+}
+
+.show {
+  display: flex;
 }
 
 .shorten-main {
@@ -67,3 +71,18 @@
 //   z-index: 1000;
 //   transition: all 0.3s;
 // }
+
+
+.shorten-folder-cell {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px 0;
+  // height: 50px;
+  background-color: #FFF;
+  border-bottom: 1px solid $divider-color;
+}
+
+.shorten-folder-title {
+  font-weight: normal;
+}

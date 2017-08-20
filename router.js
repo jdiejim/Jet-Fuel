@@ -5,6 +5,7 @@ const pathsController = require('./controllers/pathsController');
 
 router.get('/folders', foldersController.index);
 router.post('/folders', foldersController.create);
+router.delete('/folders', foldersController.delete);
 router.get('/folders/:id/paths', pathsController.index);
 router.post('/folders/:id/paths', pathsController.create);
 
