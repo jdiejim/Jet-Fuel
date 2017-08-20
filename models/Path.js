@@ -5,7 +5,7 @@ const shortHash = require('short-hash');
 const moment = require('moment');
 
 exports.getPaths = (folder_id) => {
-  return db('paths').where(folder_id).select();
+  return db('paths').orderBy('created_at', 'asc').where(folder_id).select();
 }
 
 exports.createPath = (body) => {

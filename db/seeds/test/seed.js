@@ -1,19 +1,6 @@
 const moment = require('moment');
 const shortHash = require('short-hash');
 
-exports.seed = function(knex, Promise) {
-  return knex('folders').del()
-    .then(() => knex('paths').del())
-    .then(() => Promise.all(
-      folders.map(name => {
-        return knex('folders').insert({ name }, 'id')
-          .then(data => knex('paths').insert(getLinks(data[0])))
-          .then(() => console.log('Seeding complete!'))
-          .catch(error => console.log('Error seeding data'))
-      })
-    ))
-};
-
 const folders = [
   'Turing Lessons',
   'Js Docs',
@@ -76,3 +63,17 @@ const getLinks = (folder_id) => {
                 return Object.assign(e, { short, date });
               });
 }
+
+
+exports.seed = function(knex, Promise) {
+  return knex('folders').del()
+    .then(() => knex('paths').del())
+    .then(() => Promise.all(
+      folders.map(name => {
+        return knex('folders').insert({ name }, 'id')
+          .then(data => knex('paths').insert(getLinks(data[0])))
+          .then(() => console.log('Seeding complete!'))
+          .catch(error => console.log('Error seeding data'))
+      })
+    ))
+};

@@ -60,452 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-// css base code, injected by the css-loader
-module.exports = function (useSourceMap) {
-	var list = [];
-
-	// return the list of modules as css string
-	list.toString = function toString() {
-		return this.map(function (item) {
-			var content = cssWithMappingToString(item, useSourceMap);
-			if (item[2]) {
-				return "@media " + item[2] + "{" + content + "}";
-			} else {
-				return content;
-			}
-		}).join("");
-	};
-
-	// import a list of modules into the list
-	list.i = function (modules, mediaQuery) {
-		if (typeof modules === "string") modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for (var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if (typeof id === "number") alreadyImportedModules[id] = true;
-		}
-		for (i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if (mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if (mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
-
-function cssWithMappingToString(item, useSourceMap) {
-	var content = item[1] || '';
-	var cssMapping = item[3];
-	if (!cssMapping) {
-		return content;
-	}
-
-	if (useSourceMap && typeof btoa === 'function') {
-		var sourceMapping = toComment(cssMapping);
-		var sourceURLs = cssMapping.sources.map(function (source) {
-			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */';
-		});
-
-		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
-	}
-
-	return [content].join('\n');
-}
-
-// Adapted from convert-source-map (MIT)
-function toComment(sourceMap) {
-	// eslint-disable-next-line no-undef
-	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
-	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
-
-	return '/*# ' + data + ' */';
-}
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-
-var stylesInDom = {};
-
-var	memoize = function (fn) {
-	var memo;
-
-	return function () {
-		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-		return memo;
-	};
-};
-
-var isOldIE = memoize(function () {
-	// Test for IE <= 9 as proposed by Browserhacks
-	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
-	// Tests for existence of standard globals is to allow style-loader
-	// to operate correctly into non-standard environments
-	// @see https://github.com/webpack-contrib/style-loader/issues/177
-	return window && document && document.all && !window.atob;
-});
-
-var getElement = (function (fn) {
-	var memo = {};
-
-	return function(selector) {
-		if (typeof memo[selector] === "undefined") {
-			memo[selector] = fn.call(this, selector);
-		}
-
-		return memo[selector]
-	};
-})(function (target) {
-	return document.querySelector(target)
-});
-
-var singleton = null;
-var	singletonCounter = 0;
-var	stylesInsertedAtTop = [];
-
-var	fixUrls = __webpack_require__(10);
-
-module.exports = function(list, options) {
-	if (typeof DEBUG !== "undefined" && DEBUG) {
-		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-	}
-
-	options = options || {};
-
-	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
-
-	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-	// tags it will allow on a page
-	if (!options.singleton) options.singleton = isOldIE();
-
-	// By default, add <style> tags to the <head> element
-	if (!options.insertInto) options.insertInto = "head";
-
-	// By default, add <style> tags to the bottom of the target
-	if (!options.insertAt) options.insertAt = "bottom";
-
-	var styles = listToStyles(list, options);
-
-	addStylesToDom(styles, options);
-
-	return function update (newList) {
-		var mayRemove = [];
-
-		for (var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-
-			domStyle.refs--;
-			mayRemove.push(domStyle);
-		}
-
-		if(newList) {
-			var newStyles = listToStyles(newList, options);
-			addStylesToDom(newStyles, options);
-		}
-
-		for (var i = 0; i < mayRemove.length; i++) {
-			var domStyle = mayRemove[i];
-
-			if(domStyle.refs === 0) {
-				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
-
-				delete stylesInDom[domStyle.id];
-			}
-		}
-	};
-};
-
-function addStylesToDom (styles, options) {
-	for (var i = 0; i < styles.length; i++) {
-		var item = styles[i];
-		var domStyle = stylesInDom[item.id];
-
-		if(domStyle) {
-			domStyle.refs++;
-
-			for(var j = 0; j < domStyle.parts.length; j++) {
-				domStyle.parts[j](item.parts[j]);
-			}
-
-			for(; j < item.parts.length; j++) {
-				domStyle.parts.push(addStyle(item.parts[j], options));
-			}
-		} else {
-			var parts = [];
-
-			for(var j = 0; j < item.parts.length; j++) {
-				parts.push(addStyle(item.parts[j], options));
-			}
-
-			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-		}
-	}
-}
-
-function listToStyles (list, options) {
-	var styles = [];
-	var newStyles = {};
-
-	for (var i = 0; i < list.length; i++) {
-		var item = list[i];
-		var id = options.base ? item[0] + options.base : item[0];
-		var css = item[1];
-		var media = item[2];
-		var sourceMap = item[3];
-		var part = {css: css, media: media, sourceMap: sourceMap};
-
-		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
-		else newStyles[id].parts.push(part);
-	}
-
-	return styles;
-}
-
-function insertStyleElement (options, style) {
-	var target = getElement(options.insertInto)
-
-	if (!target) {
-		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
-	}
-
-	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
-
-	if (options.insertAt === "top") {
-		if (!lastStyleElementInsertedAtTop) {
-			target.insertBefore(style, target.firstChild);
-		} else if (lastStyleElementInsertedAtTop.nextSibling) {
-			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
-		} else {
-			target.appendChild(style);
-		}
-		stylesInsertedAtTop.push(style);
-	} else if (options.insertAt === "bottom") {
-		target.appendChild(style);
-	} else {
-		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-	}
-}
-
-function removeStyleElement (style) {
-	if (style.parentNode === null) return false;
-	style.parentNode.removeChild(style);
-
-	var idx = stylesInsertedAtTop.indexOf(style);
-	if(idx >= 0) {
-		stylesInsertedAtTop.splice(idx, 1);
-	}
-}
-
-function createStyleElement (options) {
-	var style = document.createElement("style");
-
-	options.attrs.type = "text/css";
-
-	addAttrs(style, options.attrs);
-	insertStyleElement(options, style);
-
-	return style;
-}
-
-function createLinkElement (options) {
-	var link = document.createElement("link");
-
-	options.attrs.type = "text/css";
-	options.attrs.rel = "stylesheet";
-
-	addAttrs(link, options.attrs);
-	insertStyleElement(options, link);
-
-	return link;
-}
-
-function addAttrs (el, attrs) {
-	Object.keys(attrs).forEach(function (key) {
-		el.setAttribute(key, attrs[key]);
-	});
-}
-
-function addStyle (obj, options) {
-	var style, update, remove, result;
-
-	// If a transform function was defined, run it on the css
-	if (options.transform && obj.css) {
-	    result = options.transform(obj.css);
-
-	    if (result) {
-	    	// If transform returns a value, use that instead of the original css.
-	    	// This allows running runtime transformations on the css.
-	    	obj.css = result;
-	    } else {
-	    	// If the transform function returns a falsy value, don't add this css.
-	    	// This allows conditional loading of css
-	    	return function() {
-	    		// noop
-	    	};
-	    }
-	}
-
-	if (options.singleton) {
-		var styleIndex = singletonCounter++;
-
-		style = singleton || (singleton = createStyleElement(options));
-
-		update = applyToSingletonTag.bind(null, style, styleIndex, false);
-		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
-
-	} else if (
-		obj.sourceMap &&
-		typeof URL === "function" &&
-		typeof URL.createObjectURL === "function" &&
-		typeof URL.revokeObjectURL === "function" &&
-		typeof Blob === "function" &&
-		typeof btoa === "function"
-	) {
-		style = createLinkElement(options);
-		update = updateLink.bind(null, style, options);
-		remove = function () {
-			removeStyleElement(style);
-
-			if(style.href) URL.revokeObjectURL(style.href);
-		};
-	} else {
-		style = createStyleElement(options);
-		update = applyToTag.bind(null, style);
-		remove = function () {
-			removeStyleElement(style);
-		};
-	}
-
-	update(obj);
-
-	return function updateStyle (newObj) {
-		if (newObj) {
-			if (
-				newObj.css === obj.css &&
-				newObj.media === obj.media &&
-				newObj.sourceMap === obj.sourceMap
-			) {
-				return;
-			}
-
-			update(obj = newObj);
-		} else {
-			remove();
-		}
-	};
-}
-
-var replaceText = (function () {
-	var textStore = [];
-
-	return function (index, replacement) {
-		textStore[index] = replacement;
-
-		return textStore.filter(Boolean).join('\n');
-	};
-})();
-
-function applyToSingletonTag (style, index, remove, obj) {
-	var css = remove ? "" : obj.css;
-
-	if (style.styleSheet) {
-		style.styleSheet.cssText = replaceText(index, css);
-	} else {
-		var cssNode = document.createTextNode(css);
-		var childNodes = style.childNodes;
-
-		if (childNodes[index]) style.removeChild(childNodes[index]);
-
-		if (childNodes.length) {
-			style.insertBefore(cssNode, childNodes[index]);
-		} else {
-			style.appendChild(cssNode);
-		}
-	}
-}
-
-function applyToTag (style, obj) {
-	var css = obj.css;
-	var media = obj.media;
-
-	if(media) {
-		style.setAttribute("media", media)
-	}
-
-	if(style.styleSheet) {
-		style.styleSheet.cssText = css;
-	} else {
-		while(style.firstChild) {
-			style.removeChild(style.firstChild);
-		}
-
-		style.appendChild(document.createTextNode(css));
-	}
-}
-
-function updateLink (link, options, obj) {
-	var css = obj.css;
-	var sourceMap = obj.sourceMap;
-
-	/*
-		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
-		and there is no publicPath defined then lets turn convertToAbsoluteUrls
-		on by default.  Otherwise default to the convertToAbsoluteUrls option
-		directly
-	*/
-	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
-
-	if (options.convertToAbsoluteUrls || autoFixUrls) {
-		css = fixUrls(css);
-	}
-
-	if (sourceMap) {
-		// http://stackoverflow.com/a/26603875
-		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-	}
-
-	var blob = new Blob([css], { type: "text/css" });
-
-	var oldSrc = link.href;
-
-	link.href = URL.createObjectURL(blob);
-
-	if(oldSrc) URL.revokeObjectURL(oldSrc);
-}
-
-
-/***/ }),
-/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10338,7 +9897,448 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	return jQuery;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)(module)))
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function (useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if (item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function (modules, mediaQuery) {
+		if (typeof modules === "string") modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for (var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if (typeof id === "number") alreadyImportedModules[id] = true;
+		}
+		for (i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if (mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if (mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */';
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			memo[selector] = fn.call(this, selector);
+		}
+
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(9);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton) options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
 
 /***/ }),
 /* 3 */
@@ -10347,84 +10347,48 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.renderToParent = exports.renderArray = undefined;
-
-var _jquery = __webpack_require__(2);
+var _jquery = __webpack_require__(0);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _ShortenForm = __webpack_require__(5);
 
-var renderArray = exports.renderArray = function renderArray(array, parent, component) {
-  (0, _jquery2.default)('#' + parent).html('');
+var _ShortenForm2 = _interopRequireDefault(_ShortenForm);
 
-  array.forEach(function (e) {
-    (0, _jquery2.default)('#' + parent).append(component(e));
-  });
-};
-
-var renderToParent = exports.renderToParent = function renderToParent(parent, component) {
-  (0, _jquery2.default)('#' + parent).append(component());
-};
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _jquery = __webpack_require__(2);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _Collections = __webpack_require__(6);
-
-var Collections = _interopRequireWildcard(_Collections);
-
-var _ShortenForm = __webpack_require__(16);
-
-var ShortenForm = _interopRequireWildcard(_ShortenForm);
-
-__webpack_require__(22);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+__webpack_require__(10);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-ShortenForm.loadEvents();
-ShortenForm.mount();
+// import * as Collections from './components/Collections';
+_ShortenForm2.default.initialMount();
 
-(0, _jquery2.default)('.nav').on('click', '.tab', toggleTab);
-
-function toggleTab(e) {
+var toggleTab = function toggleTab(e) {
   var tab = (0, _jquery2.default)(e.target).prop('id');
 
   handleTabClass(tab);
   renderView(tab);
-}
+};
 
-function renderView(tab) {
-  switch (tab) {
-    case 'tab-1':
-      Collections.unMount();
-      return ShortenForm.mount();
-    case 'tab-2':
-      ShortenForm.unMount();
-      return Collections.mount();
-  }
-}
-
-function handleTabClass(tab) {
+var handleTabClass = function handleTabClass(tab) {
   (0, _jquery2.default)('.tab').removeClass('active-tab');
   (0, _jquery2.default)('#' + tab).addClass('active-tab');
-}
+};
+
+var renderView = function renderView(tab) {
+  switch (tab) {
+    case 'tab-1':
+      _ShortenForm2.default.mount();
+      return;
+    case 'tab-2':
+      _ShortenForm2.default.unMount();
+      return;
+  }
+};
+
+(0, _jquery2.default)('.nav').on('click', '.tab', toggleTab);
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10454,6 +10418,177 @@ module.exports = function (module) {
 };
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = __webpack_require__(0);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _helpers = __webpack_require__(6);
+
+__webpack_require__(7);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ShortenForm = function () {
+  function ShortenForm() {
+    _classCallCheck(this, ShortenForm);
+
+    this.saveFolder = this.saveFolder.bind(this);
+    this.savePath = this.savePath.bind(this);
+    this.folders = [];
+  }
+
+  _createClass(ShortenForm, [{
+    key: 'initialMount',
+    value: function initialMount() {
+      this.loadEvents();
+      this.mount();
+    }
+  }, {
+    key: 'mount',
+    value: function mount() {
+      if (!this.folders.length) {
+        this.fetchFolders();
+      }
+
+      (0, _jquery2.default)('#shorten-wrapper').addClass('show');
+    }
+  }, {
+    key: 'unMount',
+    value: function unMount() {
+      (0, _jquery2.default)('#shorten-wrapper').removeClass('show');
+    }
+  }, {
+    key: 'loadEvents',
+    value: function loadEvents() {
+      (0, _jquery2.default)('#save-folder').on('click', this.saveFolder);
+      (0, _jquery2.default)('#shorten-folders').on('click', '.save-btn', this.savePath);
+    }
+  }, {
+    key: 'savePath',
+    value: function savePath(e) {
+      var id = (0, _helpers.getId)((0, _jquery2.default)(e.target).parent().prop('id'));
+      var title = (0, _jquery2.default)('#input-title');
+      var path = (0, _jquery2.default)('#input-path');
+
+      this.postPath(id, this.getInputs());
+      this.clearInputs(title, path);
+    }
+  }, {
+    key: 'postPath',
+    value: function postPath(id, body) {
+      var _this = this;
+
+      fetch('api/v1/folders/' + id + '/paths', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(function (res) {
+        return res.json();
+      }).then(function (path) {
+        return _this.appendShort(path);
+      }).catch(function (error) {
+        return console.log(error);
+      });
+    }
+  }, {
+    key: 'saveFolder',
+    value: function saveFolder() {
+      var input = (0, _jquery2.default)('#input-folder');
+      var name = input.val();
+
+      this.postFolder({ name: name });
+      this.clearInputs(input);
+    }
+  }, {
+    key: 'postFolder',
+    value: function postFolder(body) {
+      var _this2 = this;
+
+      fetch('api/v1/folders', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(function (res) {
+        return res.json();
+      }).then(function () {
+        return _this2.fetchFolders();
+      }).catch(function (error) {
+        return console.log(error);
+      });
+    }
+  }, {
+    key: 'fetchFolders',
+    value: function fetchFolders() {
+      var _this3 = this;
+
+      fetch('api/v1/folders').then(function (res) {
+        return res.json();
+      }).then(function (folders) {
+        (0, _helpers.renderArray)(folders, 'shorten-folders', _this3.folderCell);
+        _this3.folders = folders;
+      }).catch(function (error) {
+        return console.log(error);
+      });
+    }
+  }, {
+    key: 'appendShort',
+    value: function appendShort(_ref) {
+      var short = _ref.short;
+
+      var link = '' + window.location.href + short;
+      var component = '<a class="path-link" href="' + link + '" target="_blank">' + link + '</a>';
+
+      (0, _jquery2.default)('.shorten-wrapper').append(component);
+    }
+  }, {
+    key: 'getInputs',
+    value: function getInputs() {
+      var title = (0, _jquery2.default)('#input-title').val();
+      var path = (0, _jquery2.default)('#input-path').val();
+
+      return { title: title, path: path };
+    }
+  }, {
+    key: 'clearInputs',
+    value: function clearInputs() {
+      for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
+        inputs[_key] = arguments[_key];
+      }
+
+      inputs.forEach(function (input) {
+        input.val('');
+      });
+    }
+  }, {
+    key: 'folderCell',
+    value: function folderCell(_ref2) {
+      var id = _ref2.id,
+          name = _ref2.name;
+
+      return '\n      <article id="folder-' + id + '" class="shorten-folder-cell">\n        <h3 class="shorten-folder-title">' + name + '</h3>\n        <button class="save-btn">Save</button>\n      </article>\n    ';
+    }
+  }]);
+
+  return ShortenForm;
+}();
+
+exports.default = new ShortenForm();
+
+/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10463,121 +10598,38 @@ module.exports = function (module) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.unMount = exports.mount = undefined;
+exports.getId = exports.renderToParent = exports.renderArray = undefined;
 
-var _jquery = __webpack_require__(2);
+var _jquery = __webpack_require__(0);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var _helpers = __webpack_require__(3);
-
-var _FolderCell = __webpack_require__(7);
-
-var _FolderCell2 = _interopRequireDefault(_FolderCell);
-
-var _PathCell = __webpack_require__(11);
-
-var _PathCell2 = _interopRequireDefault(_PathCell);
-
-__webpack_require__(14);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var mount = exports.mount = function mount() {
-  (0, _helpers.renderToParent)('app', component);
-  viewDidMount();
-};
+var renderArray = exports.renderArray = function renderArray(array, parent, component) {
+  (0, _jquery2.default)('#' + parent).html('');
 
-var unMount = exports.unMount = function unMount() {
-  (0, _jquery2.default)('#collections').off('click');
-  (0, _jquery2.default)('.collections-wrapper').remove();
-};
-
-var viewDidMount = function viewDidMount() {
-  fetchFolders();
-  (0, _jquery2.default)('#collections').on('click', '.folder-cell', handleClick);
-};
-
-var component = function component() {
-  return '\n    <section class="collections-wrapper">\n      <section id="collections" class="collections-folders"></section>\n      <section id="collections-paths" class="collections-paths"></section>\n    </section>\n    ';
-};
-
-var fetchFolders = function fetchFolders() {
-  fetch('api/v1/folders').then(function (res) {
-    return res.json();
-  }).then(function (folders) {
-    return (0, _helpers.renderArray)(folders, 'collections', _FolderCell2.default);
-  }).catch(function (error) {
-    return console.log(error);
+  array.forEach(function (e) {
+    (0, _jquery2.default)('#' + parent).append(component(e));
   });
 };
 
-var fetchPaths = function fetchPaths(id) {
-  fetch('api/v1/folders/' + id + '/paths').then(function (res) {
-    return res.json();
-  }).then(function (paths) {
-    (0, _helpers.renderArray)(paths, 'collections-paths', _PathCell2.default);
-    handleAnimation((0, _jquery2.default)('.collections-wrapper'));
-  }).catch(function (error) {
-    return console.log(error);
-  });
+var renderToParent = exports.renderToParent = function renderToParent(parent, component) {
+  (0, _jquery2.default)('#' + parent).append(component());
 };
 
-var getId = function getId(raw) {
+var getId = exports.getId = function getId(raw) {
   return raw.split('-')[1];
-};
-
-var handleClick = function handleClick(_ref) {
-  var target = _ref.target,
-      className = _ref.target.className;
-
-  var cell = className === 'folder-title' ? (0, _jquery2.default)(target).parent() : (0, _jquery2.default)(target);
-  var id = getId(cell.prop('id'));
-
-  fetchPaths(id);
-};
-
-var handleAnimation = function handleAnimation(el) {
-  if (el.hasClass('collections-expand')) {
-    el.removeClass('collections-expand');
-    setTimeout(function () {
-      return el.addClass('collections-expand');
-    }, 300);
-  } else {
-    el.addClass('collections-expand');
-  }
 };
 
 /***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-__webpack_require__(8);
-
-var FolderCell = function FolderCell(_ref) {
-  var id = _ref.id,
-      name = _ref.name;
-
-  return '\n    <article id="folder-' + id + '" class="folder-cell">\n      <h3 class="folder-title">' + name + '</h3>\n    </article>\n  ';
-};
-
-exports.default = FolderCell;
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(9);
+var content = __webpack_require__(8);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -10585,14 +10637,14 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
+var update = __webpack_require__(2)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./FolderCell.scss", function() {
-			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./FolderCell.scss");
+		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss", function() {
+			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -10602,21 +10654,21 @@ if(false) {
 }
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(0)(true);
+exports = module.exports = __webpack_require__(1)(true);
 // imports
 
 
 // module
-exports.push([module.i, ".folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  height: 50px;\n  border-bottom: 1px solid #BDBDBD;\n  color: #FFF;\n  cursor: pointer; }\n\n.folder-title {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/FolderCell.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,kBAAiB;EACjB,aAAY;EACZ,iCCD4B;EDE5B,YAAW;EACX,gBAAe,EAChB;;AAED;EACE,oBAAmB,EACpB","file":"FolderCell.scss","sourcesContent":["@import \"../../utils/palette\";\n\n.folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  height: 50px;\n  border-bottom: 1px solid $divider-color;\n  color: #FFF;\n  cursor: pointer;\n}\n\n.folder-title {\n  font-weight: normal;\n}\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
+exports.push([module.i, "@keyframes appear {\n  from {\n    transform: scaleY(0); }\n  to {\n    transform: scaleY(100%); } }\n\n.shorten-wrapper {\n  display: none;\n  flex-direction: column;\n  width: 700px;\n  height: 300px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  background-color: red; }\n\n.show {\n  display: flex; }\n\n.shorten-main {\n  display: flex;\n  width: 100%;\n  height: 80%;\n  background-color: blue; }\n\n.path-form {\n  width: 50%;\n  height: 100%;\n  background-color: orange; }\n\n.shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  background-color: #FFF;\n  border-bottom: 1px solid #BDBDBD; }\n\n.shorten-folder-title {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/views/styles/src/views/styles/ShortenForm.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/views/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE;IAAO,qBAAoB,EAAA;EAC3B;IAAO,wBAAuB,EAAA,EAAA;;AAGhC;EACE,cAAa;EACb,uBAAsB;EACtB,aAAY;EACZ,cAAa;EACb,oBAAmB;EACnB,uBAAsB;EACtB,sBAAqB,EACtB;;AAED;EACE,cAAa,EACd;;AAED;EACE,cAAa;EACb,YAAW;EACX,YAAW;EACX,uBAAsB,EACvB;;AAED;EACE,WAAU;EACV,aAAY;EACZ,yBAAwB,EACzB;;AA2CD;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,kBAAiB;EAEjB,uBAAsB;EACtB,iCC3E4B,ED4E7B;;AAED;EACE,oBAAmB,EACpB","file":"ShortenForm.scss","sourcesContent":["@import \"../../utils/palette\";\n\n@keyframes appear {\n  from { transform: scaleY(0); }\n  to   { transform: scaleY(100%); }\n}\n\n.shorten-wrapper {\n  display: none;\n  flex-direction: column;\n  width: 700px;\n  height: 300px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  background-color: red;\n}\n\n.show {\n  display: flex;\n}\n\n.shorten-main {\n  display: flex;\n  width: 100%;\n  height: 80%;\n  background-color: blue;\n}\n\n.path-form {\n  width: 50%;\n  height: 100%;\n  background-color: orange;\n}\n\n// .shorten {\n//   display: flex;\n//   width: 700px;\n//   height: 300px;\n//   margin: 50px auto 0;\n//   background-color: #FFF;\n//   box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n//   z-index: 1000;\n//   overflow: hidden;\n//   background-color: orange;\n// }\n//\n// .path-form {\n//   display: flex;\n//   justify-content: center;\n//   flex-direction: column;\n//   width: 60%;\n//   height: 100%;\n//   background-color: red;;\n//   overflow: scroll;\n//   z-index: 1000;\n// }\n//\n// .shorten-folders-wrapper {\n//   display: flex;\n//   flex-direction: column;\n//   justify-content: space-between;\n//   width: 50%;\n//   margin: 0 auto;\n// }\n//\n// .shorten-folders {\n//   display: flex;\n//   flex-direction: column;\n//   width: 100%;\n//   height: 100%;\n//   z-index: 1000;\n//   transition: all 0.3s;\n// }\n\n\n.shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  // height: 50px;\n  background-color: #FFF;\n  border-bottom: 1px solid $divider-color;\n}\n\n.shorten-folder-title {\n  font-weight: normal;\n}\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
 
 // exports
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10711,40 +10763,13 @@ module.exports = function (css) {
 };
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-__webpack_require__(12);
-
-var PathCell = function PathCell(_ref) {
-  var id = _ref.id,
-      title = _ref.title,
-      short = _ref.short,
-      path = _ref.path,
-      date = _ref.date;
-
-  var link = '' + window.location.href + short;
-
-  return '\n    <article id="path-' + id + '" class="path-cell">\n      <h3 class="path-title">' + title + ':</h3>\n      <a class="path-link" href="' + link + '" target="_blank">' + link + '</a>\n    </article>\n  ';
-};
-
-exports.default = PathCell;
-
-/***/ }),
-/* 12 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(13);
+var content = __webpack_require__(11);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -10752,328 +10777,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./PathCell.scss", function() {
-			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./PathCell.scss");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(true);
-// imports
-
-
-// module
-exports.push([module.i, ".path-cell {\n  display: flex;\n  flex-direction: column;\n  align-self: flex-end;\n  width: 95%;\n  padding: 10px 20px;\n  margin: 5px 5px 5px 0;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1); }\n\n.path-title {\n  font-size: 16px;\n  font-weight: normal; }\n\n.path-link {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/PathCell.scss"],"names":[],"mappings":"AAAA;EACE,cAAa;EACb,uBAAsB;EACtB,qBAAoB;EACpB,WAAU;EACV,mBAAkB;EAClB,sBAAqB;EACrB,2EAA0E,EAC3E;;AAED;EACE,gBAAe;EACf,oBAAmB,EACpB;;AAED;EACE,oBAAmB,EACpB","file":"PathCell.scss","sourcesContent":[".path-cell {\n  display: flex;\n  flex-direction: column;\n  align-self: flex-end;\n  width: 95%;\n  padding: 10px 20px;\n  margin: 5px 5px 5px 0;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n}\n\n.path-title {\n  font-size: 16px;\n  font-weight: normal;\n}\n\n.path-link {\n  font-weight: normal;\n}\n"],"sourceRoot":""}]);
-
-// exports
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(15);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./Collections.scss", function() {
-			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./Collections.scss");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(true);
-// imports
-
-
-// module
-exports.push([module.i, "@keyframes appear {\n  from {\n    transform: scaleY(0); }\n  to {\n    transform: scaleY(100%); } }\n\n.collections-wrapper {\n  display: flex;\n  width: 600px;\n  height: 500px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n  z-index: 0;\n  overflow: hidden; }\n\n.collections-folders {\n  display: flex;\n  flex-direction: column;\n  width: 40%;\n  height: 100%;\n  background-color: red;\n  overflow: scroll;\n  z-index: 1000; }\n\n.collections-paths {\n  display: flex;\n  flex-direction: column;\n  width: 60%;\n  height: 100%;\n  z-index: 900;\n  transform: translateX(-95%);\n  transition: all 0.3s; }\n\n.collections-expand .collections-paths {\n  transform: translateX(0%); }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/Collections.scss"],"names":[],"mappings":"AAEA;EACE;IAAO,qBAAoB,EAAA;EAC3B;IAAO,wBAAuB,EAAA,EAAA;;AAGhC;EACE,cAAa;EACb,aAAY;EACZ,cAAa;EACb,oBAAmB;EACnB,uBAAsB;EACtB,2EAA0E;EAC1E,WAAU;EACV,iBAAgB,EACjB;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,WAAU;EACV,aAAY;EACZ,sBAAqB;EACrB,iBAAgB;EAChB,cAAa,EACd;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,WAAU;EACV,aAAY;EACZ,aAAY;EACZ,4BAA2B;EAC3B,qBAAoB,EACrB;;AAED;EACE,0BAAyB,EAC1B","file":"Collections.scss","sourcesContent":["@import \"../../utils/palette\";\n\n@keyframes appear {\n  from { transform: scaleY(0); }\n  to   { transform: scaleY(100%); }\n}\n\n.collections-wrapper {\n  display: flex;\n  width: 600px;\n  height: 500px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n  z-index: 0;\n  overflow: hidden;\n}\n\n.collections-folders {\n  display: flex;\n  flex-direction: column;\n  width: 40%;\n  height: 100%;\n  background-color: red;\n  overflow: scroll;\n  z-index: 1000;\n}\n\n.collections-paths {\n  display: flex;\n  flex-direction: column;\n  width: 60%;\n  height: 100%;\n  z-index: 900;\n  transform: translateX(-95%);\n  transition: all 0.3s;\n}\n\n.collections-expand .collections-paths {\n  transform: translateX(0%);\n}\n"],"sourceRoot":""}]);
-
-// exports
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.loadEvents = exports.mount = undefined;
-
-var _jquery = __webpack_require__(2);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _helpers = __webpack_require__(3);
-
-var _ShortenFolderCell = __webpack_require__(17);
-
-var _ShortenFolderCell2 = _interopRequireDefault(_ShortenFolderCell);
-
-__webpack_require__(20);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var mount = exports.mount = function mount() {
-  viewDidMount();
-};
-
-var loadEvents = exports.loadEvents = function loadEvents() {
-  (0, _jquery2.default)('#save-folder').on('click', saveFolder);
-  (0, _jquery2.default)('#shorten-folders').on('click', '.save-btn', savePath);
-};
-
-var viewDidMount = function viewDidMount() {
-  fetchFolders();
-};
-
-var fetchFolders = function fetchFolders() {
-  console.log('fetching');
-  fetch('api/v1/folders').then(function (res) {
-    return res.json();
-  }).then(function (folders) {
-    return (0, _helpers.renderArray)(folders, 'shorten-folders', _ShortenFolderCell2.default);
-  }).catch(function (error) {
-    return console.log(error);
-  });
-};
-
-var postPath = function postPath(id, body) {
-  fetch('api/v1/folders/' + id + '/paths', {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json' }
-  }).then(function (res) {
-    return res.json();
-  }).then(function (path) {
-    console.log(path);
-    appendShort(path);
-  }).catch(function (error) {
-    return console.log(error);
-  });
-};
-
-var postFolder = function postFolder(body) {
-  fetch('api/v1/folders', {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json' }
-  }).then(function (res) {
-    return res.json();
-  }).then(function () {
-    return fetchFolders();
-  }).catch(function (error) {
-    return console.log(error);
-  });
-};
-
-var getId = function getId(raw) {
-  return raw.split('-')[1];
-};
-
-var getInputs = function getInputs() {
-  var title = (0, _jquery2.default)('#input-title').val();
-  var path = (0, _jquery2.default)('#input-path').val();
-
-  return { title: title, path: path };
-};
-
-var clearInputs = function clearInputs() {
-  (0, _jquery2.default)('#input-title').val('');
-  (0, _jquery2.default)('#input-path').val('');
-};
-
-var savePath = function savePath(e) {
-  var parent = (0, _jquery2.default)(e.target).parent();
-  var id = getId(parent.prop('id'));
-  var body = getInputs();
-
-  postPath(id, body);
-  clearInputs();
-};
-
-var saveFolder = function saveFolder() {
-  var name = (0, _jquery2.default)('#input-folder').val();
-
-  postFolder({ name: name });
-};
-
-var appendShort = function appendShort(_ref) {
-  var short = _ref.short;
-
-  var link = '' + window.location.href + short;
-  var component = '<a class="path-link" href="' + link + '" target="_blank">' + link + '</a>';
-
-  (0, _jquery2.default)('.shorten-wrapper').append(component);
-};
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-__webpack_require__(18);
-
-var ShortenFolderCell = function ShortenFolderCell(_ref) {
-  var id = _ref.id,
-      name = _ref.name;
-
-  return '\n    <article id="folder-' + id + '" class="shorten-folder-cell">\n      <h3 class="shorten-folder-title">' + name + '</h3>\n      <button class="save-btn">Save</button>\n    </article>\n  ';
-};
-
-exports.default = ShortenFolderCell;
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(19);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenFolderCell.scss", function() {
-			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenFolderCell.scss");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(true);
-// imports
-
-
-// module
-exports.push([module.i, ".shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  background-color: #FFF;\n  border-bottom: 1px solid #BDBDBD; }\n\n.shorten-folder-title {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/ShortenFolderCell.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,kBAAiB;EAEjB,uBAAsB;EACtB,iCCF4B,EDG7B;;AAED;EACE,oBAAmB,EACpB","file":"ShortenFolderCell.scss","sourcesContent":["@import \"../../utils/palette\";\n\n.shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  // height: 50px;\n  background-color: #FFF;\n  border-bottom: 1px solid $divider-color;\n}\n\n.shorten-folder-title {\n  font-weight: normal;\n}\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
-
-// exports
-
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(21);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss", function() {
-			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(true);
-// imports
-
-
-// module
-exports.push([module.i, "@keyframes appear {\n  from {\n    transform: scaleY(0); }\n  to {\n    transform: scaleY(100%); } }\n\n.shorten-wrapper {\n  display: flex;\n  flex-direction: column;\n  width: 700px;\n  height: 300px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  background-color: red; }\n\n.shorten-main {\n  display: flex;\n  width: 100%;\n  height: 80%;\n  background-color: blue; }\n\n.path-form {\n  width: 50%;\n  height: 100%;\n  background-color: orange; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/components/styles/src/components/styles/ShortenForm.scss"],"names":[],"mappings":"AAEA;EACE;IAAO,qBAAoB,EAAA;EAC3B;IAAO,wBAAuB,EAAA,EAAA;;AAGhC;EACE,cAAa;EACb,uBAAsB;EACtB,aAAY;EACZ,cAAa;EACb,oBAAmB;EACnB,uBAAsB;EACtB,sBAAqB,EACtB;;AAED;EACE,cAAa;EACb,YAAW;EACX,YAAW;EACX,uBAAsB,EACvB;;AAED;EACE,WAAU;EACV,aAAY;EACZ,yBAAwB,EACzB","file":"ShortenForm.scss","sourcesContent":["@import \"../../utils/palette\";\n\n@keyframes appear {\n  from { transform: scaleY(0); }\n  to   { transform: scaleY(100%); }\n}\n\n.shorten-wrapper {\n  display: flex;\n  flex-direction: column;\n  width: 700px;\n  height: 300px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  background-color: red;\n}\n\n.shorten-main {\n  display: flex;\n  width: 100%;\n  height: 80%;\n  background-color: blue;\n}\n\n.path-form {\n  width: 50%;\n  height: 100%;\n  background-color: orange;\n}\n\n// .shorten {\n//   display: flex;\n//   width: 700px;\n//   height: 300px;\n//   margin: 50px auto 0;\n//   background-color: #FFF;\n//   box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n//   z-index: 1000;\n//   overflow: hidden;\n//   background-color: orange;\n// }\n//\n// .path-form {\n//   display: flex;\n//   justify-content: center;\n//   flex-direction: column;\n//   width: 60%;\n//   height: 100%;\n//   background-color: red;;\n//   overflow: scroll;\n//   z-index: 1000;\n// }\n//\n// .shorten-folders-wrapper {\n//   display: flex;\n//   flex-direction: column;\n//   justify-content: space-between;\n//   width: 50%;\n//   margin: 0 auto;\n// }\n//\n// .shorten-folders {\n//   display: flex;\n//   flex-direction: column;\n//   width: 100%;\n//   height: 100%;\n//   z-index: 1000;\n//   transition: all 0.3s;\n// }\n"],"sourceRoot":""}]);
-
-// exports
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(23);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
+var update = __webpack_require__(2)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -11090,21 +10794,21 @@ if(false) {
 }
 
 /***/ }),
-/* 23 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(0)(true);
+exports = module.exports = __webpack_require__(1)(true);
 // imports
 
 
 // module
-exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif; }\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0; }\n\nbutton {\n  cursor: pointer; }\n\n.bg {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 300px;\n  background-color: #607D8B;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n  z-index: -10; }\n\n.header {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 50px;\n  padding: 0 20px;\n  margin: 15px 0 0;\n  background-color: #607D8B;\n  z-index: 1000; }\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden; }\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(" + __webpack_require__(24) + ");\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px; }\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid #607D8B;\n  color: #BDBDBD;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s; }\n  .tab:focus {\n    outline: none; }\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF; }\n\n@keyframes animateTab {\n  to {\n    transform: scale(100);\n    opacity: 0; } }\n\n.ripple {\n  position: absolute;\n  background-color: red;\n  width: 100px;\n  height: 100px; }\n\n.animate-tab .ripple {\n  width: 2px;\n  height: 2px;\n  animation: 0.5s animateTab;\n  background-color: red;\n  border-radius: 50%; }\n\n#folder-wrapper {\n  display: flex;\n  flex-direction: column;\n  width: 400px;\n  height: 800px;\n  margin: 0 auto; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/src/index.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE,uBAAsB,EACvB;;AAED;EACE,YAAW;EACX,aAAY;EACZ,UAAS;EACT,uCAAsC,EACvC;;AAED;;;;;EAKE,UAAS,EACV;;AAED;EACE,gBAAe,EAChB;;AAED;EACE,mBAAkB;EAClB,OAAM;EACN,QAAO;EACP,YAAW;EACX,cAAa;EACb,0BC9B4B;ED+B5B,mEAAkE;EAClE,aAAY,EACb;;AAED;EACE,mBAAkB;EAClB,cAAa;EACb,oBAAmB;EACnB,+BAA8B;EAC9B,YAAW;EACX,aAAY;EACZ,gBAAe;EACf,iBAAgB;EAChB,0BC5C4B;ED6C5B,cAAa,EACd;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,wBAAuB;EACvB,aAAY;EACZ,iBAAgB,EACjB;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,gDAAwC;EACxC,6BAA4B;EAC5B,6BAA4B;EAC5B,yBAAwB;EACxB,mBAAkB,EACnB;;AAED;EACE,aAAY;EACZ,aAAY;EACZ,eAAc;EACd,8BAA6B;EAC7B,iCCxE4B;EDyE5B,eCnE4B;EDoE5B,kBAAiB;EACjB,gBAAe;EACf,sBAAqB;EACrB,iBAAgB;EAChB,qBAAoB,EAIrB;EAfD;IAaI,cAAa,EACd;;AAGH;EACE,8BAA6B;EAC7B,YAAW,EACZ;;AAED;EACE;IAAK,sBAAqB;IAAE,WAAU,EAAA,EAAA;;AAGxC;EACE,mBAAkB;EAClB,sBAAqB;EACrB,aAAY;EACZ,cAAa,EACd;;AAED;EAEI,WAAU;EACV,YAAW;EACX,2BAA0B;EAC1B,sBAAqB;EACrB,mBAAkB,EACnB;;AAGH;EACE,cAAa;EACb,uBAAsB;EACtB,aAAY;EACZ,cAAa;EACb,eAAc,EACf","file":"index.scss","sourcesContent":["@import \"./utils/palette\";\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif;\n}\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n}\n\nbutton {\n  cursor: pointer;\n}\n\n.bg {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 300px;\n  background-color: $primary-color;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n  z-index: -10;\n}\n\n.header {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 50px;\n  padding: 0 20px;\n  margin: 15px 0 0;\n  background-color: $primary-color;\n  z-index: 1000;\n}\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden;\n}\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(./assets/logo.svg);\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px;\n}\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid $primary-color;\n  color: $divider-color;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s;\n  &:focus {\n    outline: none;\n  }\n}\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF;\n}\n\n@keyframes animateTab {\n  to { transform: scale(100); opacity: 0; }\n}\n\n.ripple {\n  position: absolute;\n  background-color: red;\n  width: 100px;\n  height: 100px;\n}\n\n.animate-tab {\n  .ripple {\n    width: 2px;\n    height: 2px;\n    animation: 0.5s animateTab;\n    background-color: red;\n    border-radius: 50%;\n  }\n}\n\n#folder-wrapper {\n  display: flex;\n  flex-direction: column;\n  width: 400px;\n  height: 800px;\n  margin: 0 auto;\n}\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
+exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif; }\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0; }\n\nbutton {\n  cursor: pointer; }\n\n.bg {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 300px;\n  background-color: #607D8B;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n  z-index: -10; }\n\n.header {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 50px;\n  padding: 0 20px;\n  margin: 15px 0 0;\n  background-color: #607D8B;\n  z-index: 1000; }\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden; }\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(" + __webpack_require__(12) + ");\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px; }\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid #607D8B;\n  color: #BDBDBD;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s; }\n  .tab:focus {\n    outline: none; }\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/src/index.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE,uBAAsB,EACvB;;AAED;EACE,YAAW;EACX,aAAY;EACZ,UAAS;EACT,uCAAsC,EACvC;;AAED;;;;;EAKE,UAAS,EACV;;AAED;EACE,gBAAe,EAChB;;AAED;EACE,mBAAkB;EAClB,OAAM;EACN,QAAO;EACP,YAAW;EACX,cAAa;EACb,0BC9B4B;ED+B5B,mEAAkE;EAClE,aAAY,EACb;;AAED;EACE,mBAAkB;EAClB,cAAa;EACb,oBAAmB;EACnB,+BAA8B;EAC9B,YAAW;EACX,aAAY;EACZ,gBAAe;EACf,iBAAgB;EAChB,0BC5C4B;ED6C5B,cAAa,EACd;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,wBAAuB;EACvB,aAAY;EACZ,iBAAgB,EACjB;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,gDAAwC;EACxC,6BAA4B;EAC5B,6BAA4B;EAC5B,yBAAwB;EACxB,mBAAkB,EACnB;;AAED;EACE,aAAY;EACZ,aAAY;EACZ,eAAc;EACd,8BAA6B;EAC7B,iCCxE4B;EDyE5B,eCnE4B;EDoE5B,kBAAiB;EACjB,gBAAe;EACf,sBAAqB;EACrB,iBAAgB;EAChB,qBAAoB,EAIrB;EAfD;IAaI,cAAa,EACd;;AAGH;EACE,8BAA6B;EAC7B,YAAW,EACZ","file":"index.scss","sourcesContent":["@import \"./utils/palette\";\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif;\n}\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n}\n\nbutton {\n  cursor: pointer;\n}\n\n.bg {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 300px;\n  background-color: $primary-color;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n  z-index: -10;\n}\n\n.header {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 50px;\n  padding: 0 20px;\n  margin: 15px 0 0;\n  background-color: $primary-color;\n  z-index: 1000;\n}\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden;\n}\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(./assets/logo.svg);\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px;\n}\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid $primary-color;\n  color: $divider-color;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s;\n  &:focus {\n    outline: none;\n  }\n}\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF;\n}\n//\n// @keyframes animateTab {\n//   to { transform: scale(100); opacity: 0; }\n// }\n//\n// .ripple {\n//   position: absolute;\n//   background-color: red;\n//   width: 100px;\n//   height: 100px;\n// }\n//\n// .animate-tab {\n//   .ripple {\n//     width: 2px;\n//     height: 2px;\n//     animation: 0.5s animateTab;\n//     background-color: red;\n//     border-radius: 50%;\n//   }\n// }\n//\n// #folder-wrapper {\n//   display: flex;\n//   flex-direction: column;\n//   width: 400px;\n//   height: 800px;\n//   margin: 0 auto;\n// }\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
 
 // exports
 
 
 /***/ }),
-/* 24 */
+/* 12 */
 /***/ (function(module, exports) {
 
 module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNTEuOTEzIDUxLjkxMyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEuOTEzIDUxLjkxMzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnPgoJCTxnPgoJCQk8cGF0aCBkPSJNMjEuMzY3LDEwLjcxaC0wLjcwM2MtMC44MjQsMC0xLjQ5MSwwLjYxMi0xLjQ5MSwxLjM2OHY1Ljc5NGgzLjY4NnYtNS43OTRDMjIuODU4LDExLjMyMywyMi4xOTEsMTAuNzEsMjEuMzY3LDEwLjcxeiIgZmlsbD0iIzQ1NUE2NCIvPgoJCQk8cGF0aCBkPSJNMzEuMjQ5LDEwLjcxaC0wLjcwNGMtMC44MjIsMC0xLjQ5LDAuNjEyLTEuNDksMS4zNjh2NS43OTRoMy42ODd2LTUuNzk0QzMyLjc0LDExLjMyMywzMi4wNzMsMTAuNzEsMzEuMjQ5LDEwLjcxeiIgZmlsbD0iIzQ1NUE2NCIvPgoJCQk8cGF0aCBkPSJNMjUuOTU3LDAuNTc3QzExLjY0NCwwLjU3NywwLDEyLjIyMSwwLDI2LjUzNGMwLDYuOTEsMi42ODQsMTMuNDEzLDcuNTU4LDE4LjMxMWMyLjg4NiwyLjksNi40NTgsNS4xMDQsMTAuMzI5LDYuMzY2ICAgICBjMC4yNTgsMC4wODUsMC41MiwwLjEyNSwwLjc3NywwLjEyNWMxLjA1MiwwLDIuMDMxLTAuNjcsMi4zNzYtMS43MjVjMC40MjktMS4zMTMtMC4yODgtMi43MjUtMS42LTMuMTUyICAgICBjLTMuMTIzLTEuMDIxLTYuMDA2LTIuNzk5LTguMzM3LTUuMTQyYy0zLjkzNS0zLjk1NC02LjEwMi05LjIwNC02LjEwMi0xNC43ODNjMC0xMS41NTYsOS40MDEtMjAuOTU3LDIwLjk1Ny0yMC45NTcgICAgIGMxMS41NTYsMCwyMC45NTcsOS40MDEsMjAuOTU3LDIwLjk1N2MwLDUuNi0yLjE3OSwxMC44NTktNi4xMzQsMTQuODE2Yy0xLjUxOSwxLjM2Mi01LjI4Niw0LjEwNC03LjU0OSw0LjEwNCAgICAgYy0xLjE2MiwwLTIuMDMtMC4zNjYtMi43MzYtMS4xNWMtMS43ODktMS45OTMtMi4xODItNi4wMjgtMi4xNjUtOC44NGM0LjMzOS0wLjIxOSw3Ljc5My0zLjc5Niw3Ljc5My04LjE4OHYtNy43OEgxNS43OXY3Ljc4ICAgICBjMCw0LjMwNywzLjMxOCw3LjgzMiw3LjUzNyw4LjE3N2MtMC4wMjYsMy4zNSwwLjQ0NCw4Ljg0LDMuNDM5LDEyLjE4NWMxLjY1MiwxLjg0NSwzLjg5LDIuODE4LDYuNDY2LDIuODE4ICAgICBjNC44MzYsMCwxMC4zNDItNC44ODUsMTAuOTUyLTUuNDRsMC4wOC0wLjA3NmM0LjkzNC00LjkwNyw3LjY0OC0xMS40NDIsNy42NDgtMTguNDAyQzUxLjkxNCwxMi4yMjEsNDAuMjcsMC41NzcsMjUuOTU3LDAuNTc3eiIgZmlsbD0iIzQ1NUE2NCIvPgoJCTwvZz4KCTwvZz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K"

@@ -87,32 +87,32 @@ button {
   border-bottom: 4px solid #FFF;
   color: #FFF;
 }
-
-@keyframes animateTab {
-  to { transform: scale(100); opacity: 0; }
-}
-
-.ripple {
-  position: absolute;
-  background-color: red;
-  width: 100px;
-  height: 100px;
-}
-
-.animate-tab {
-  .ripple {
-    width: 2px;
-    height: 2px;
-    animation: 0.5s animateTab;
-    background-color: red;
-    border-radius: 50%;
-  }
-}
-
-#folder-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 400px;
-  height: 800px;
-  margin: 0 auto;
-}
+//
+// @keyframes animateTab {
+//   to { transform: scale(100); opacity: 0; }
+// }
+//
+// .ripple {
+//   position: absolute;
+//   background-color: red;
+//   width: 100px;
+//   height: 100px;
+// }
+//
+// .animate-tab {
+//   .ripple {
+//     width: 2px;
+//     height: 2px;
+//     animation: 0.5s animateTab;
+//     background-color: red;
+//     border-radius: 50%;
+//   }
+// }
+//
+// #folder-wrapper {
+//   display: flex;
+//   flex-direction: column;
+//   width: 400px;
+//   height: 800px;
+//   margin: 0 auto;
+// }
