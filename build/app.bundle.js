@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -9897,10 +9897,75 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	return jQuery;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module)))
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getId = exports.renderToParent = exports.renderArray = undefined;
+
+var _jquery = __webpack_require__(0);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var renderArray = exports.renderArray = function renderArray(array, parent, component) {
+  (0, _jquery2.default)('#' + parent).html('');
+
+  array.forEach(function (e) {
+    (0, _jquery2.default)('#' + parent).append(component(e));
+  });
+};
+
+var renderToParent = exports.renderToParent = function renderToParent(parent, component) {
+  (0, _jquery2.default)('#' + parent).append(component());
+};
+
+var getId = exports.getId = function getId(raw) {
+  return raw.split('-')[1];
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(8);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(4)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss", function() {
+			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9982,7 +10047,7 @@ function toComment(sourceMap) {
 }
 
 /***/ }),
-/* 2 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -10341,7 +10406,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10351,16 +10416,20 @@ var _jquery = __webpack_require__(0);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var _ShortenForm = __webpack_require__(5);
+var _Collections = __webpack_require__(7);
+
+var _Collections2 = _interopRequireDefault(_Collections);
+
+var _ShortenForm = __webpack_require__(10);
 
 var _ShortenForm2 = _interopRequireDefault(_ShortenForm);
 
-__webpack_require__(10);
+__webpack_require__(11);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import * as Collections from './components/Collections';
 _ShortenForm2.default.initialMount();
+_Collections2.default.loadEvents();
 
 var toggleTab = function toggleTab(e) {
   var tab = (0, _jquery2.default)(e.target).prop('id');
@@ -10378,17 +10447,17 @@ var renderView = function renderView(tab) {
   switch (tab) {
     case 'tab-1':
       _ShortenForm2.default.mount();
-      return;
+      return _Collections2.default.unMount();
     case 'tab-2':
       _ShortenForm2.default.unMount();
-      return;
+      return _Collections2.default.mount();
   }
 };
 
 (0, _jquery2.default)('.nav').on('click', '.tab', toggleTab);
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10418,7 +10487,7 @@ module.exports = function (module) {
 };
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10434,9 +10503,253 @@ var _jquery = __webpack_require__(0);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var _helpers = __webpack_require__(6);
+var _helpers = __webpack_require__(1);
 
-__webpack_require__(7);
+__webpack_require__(14);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Collections = function () {
+  function Collections() {
+    _classCallCheck(this, Collections);
+
+    this.loadUrls = this.loadUrls.bind(this);
+    this.folders = [];
+  }
+
+  _createClass(Collections, [{
+    key: 'mount',
+    value: function mount() {
+      if (!this.folders.length) {
+        this.fetchFolders();
+      }
+
+      (0, _jquery2.default)('#collections-wrapper').addClass('show');
+      (0, _jquery2.default)('#collections-folders').addClass('show');
+      (0, _jquery2.default)('#collections-paths').addClass('show');
+    }
+  }, {
+    key: 'unMount',
+    value: function unMount() {
+      (0, _jquery2.default)('#collections-wrapper').removeClass('show');
+      (0, _jquery2.default)('#collections-folders').removeClass('show');
+      (0, _jquery2.default)('#collections-paths').removeClass('show');
+    }
+  }, {
+    key: 'loadEvents',
+    value: function loadEvents() {
+      (0, _jquery2.default)('#collections-folders').on('click', '.folder-cell', this.loadUrls);
+    }
+  }, {
+    key: 'loadUrls',
+    value: function loadUrls(_ref) {
+      var target = _ref.target,
+          className = _ref.target.className;
+
+      var cell = className === 'folder-title' ? (0, _jquery2.default)(target).parent() : (0, _jquery2.default)(target);
+      var id = (0, _helpers.getId)(cell.prop('id'));
+
+      this.fetchPaths(id);
+    }
+  }, {
+    key: 'handleAnimation',
+    value: function handleAnimation(el) {
+      if (el.hasClass('collections-expand')) {
+        el.removeClass('collections-expand');
+        setTimeout(function () {
+          return el.addClass('collections-expand');
+        }, 300);
+      } else {
+        el.addClass('collections-expand');
+      }
+    }
+  }, {
+    key: 'fetchPaths',
+    value: function fetchPaths(id) {
+      var _this = this;
+
+      fetch('api/v1/folders/' + id + '/paths').then(function (res) {
+        return res.json();
+      }).then(function (paths) {
+        (0, _helpers.renderArray)(paths, 'collections-paths', _this.pathCell);
+        _this.handleAnimation((0, _jquery2.default)('#collections-wrapper'));
+      }).catch(function (error) {
+        return console.log(error);
+      });
+    }
+  }, {
+    key: 'fetchFolders',
+    value: function fetchFolders() {
+      var _this2 = this;
+
+      fetch('api/v1/folders').then(function (res) {
+        return res.json();
+      }).then(function (folders) {
+        (0, _helpers.renderArray)(folders, 'collections-folders', _this2.folderCell);
+        _this2.folders = folders;
+      }).catch(function (error) {
+        return console.log(error);
+      });
+    }
+  }, {
+    key: 'folderCell',
+    value: function folderCell(_ref2) {
+      var id = _ref2.id,
+          name = _ref2.name;
+
+      return '\n      <article id="folder-' + id + '" class="folder-cell">\n        <h3 class="folder-title">' + name + '</h3>\n      </article>\n    ';
+    }
+  }, {
+    key: 'pathCell',
+    value: function pathCell(_ref3) {
+      var id = _ref3.id,
+          title = _ref3.title,
+          short = _ref3.short,
+          path = _ref3.path,
+          date = _ref3.date;
+
+      var link = '' + window.location.href + short;
+
+      return '\n      <article id="path-' + id + '" class="path-cell">\n        <h3 class="path-title">' + title + ':</h3>\n        <a class="path-link" href="' + link + '" target="_blank">' + link + '</a>\n      </article>\n    ';
+    }
+  }]);
+
+  return Collections;
+}();
+
+exports.default = new Collections();
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(3)(true);
+// imports
+
+
+// module
+exports.push([module.i, "@keyframes appear {\n  from {\n    transform: scaleY(0); }\n  to {\n    transform: scaleY(100%); } }\n\n.shorten-wrapper {\n  display: none;\n  flex-direction: column;\n  width: 700px;\n  height: 300px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  background-color: red; }\n\n.show {\n  display: flex; }\n\n.shorten-main {\n  display: flex;\n  width: 100%;\n  height: 80%;\n  background-color: blue; }\n\n.path-form {\n  width: 50%;\n  height: 100%;\n  background-color: orange; }\n\n.shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  background-color: #FFF;\n  border-bottom: 1px solid #BDBDBD; }\n\n.shorten-folder-title {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/views/styles/src/views/styles/ShortenForm.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/views/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE;IAAO,qBAAoB,EAAA;EAC3B;IAAO,wBAAuB,EAAA,EAAA;;AAGhC;EACE,cAAa;EACb,uBAAsB;EACtB,aAAY;EACZ,cAAa;EACb,oBAAmB;EACnB,uBAAsB;EACtB,sBAAqB,EACtB;;AAED;EACE,cAAa,EACd;;AAED;EACE,cAAa;EACb,YAAW;EACX,YAAW;EACX,uBAAsB,EACvB;;AAED;EACE,WAAU;EACV,aAAY;EACZ,yBAAwB,EACzB;;AA2CD;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,kBAAiB;EAEjB,uBAAsB;EACtB,iCC3E4B,ED4E7B;;AAED;EACE,oBAAmB,EACpB","file":"ShortenForm.scss","sourcesContent":["@import \"../../utils/palette\";\n\n@keyframes appear {\n  from { transform: scaleY(0); }\n  to   { transform: scaleY(100%); }\n}\n\n.shorten-wrapper {\n  display: none;\n  flex-direction: column;\n  width: 700px;\n  height: 300px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  background-color: red;\n}\n\n.show {\n  display: flex;\n}\n\n.shorten-main {\n  display: flex;\n  width: 100%;\n  height: 80%;\n  background-color: blue;\n}\n\n.path-form {\n  width: 50%;\n  height: 100%;\n  background-color: orange;\n}\n\n// .shorten {\n//   display: flex;\n//   width: 700px;\n//   height: 300px;\n//   margin: 50px auto 0;\n//   background-color: #FFF;\n//   box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n//   z-index: 1000;\n//   overflow: hidden;\n//   background-color: orange;\n// }\n//\n// .path-form {\n//   display: flex;\n//   justify-content: center;\n//   flex-direction: column;\n//   width: 60%;\n//   height: 100%;\n//   background-color: red;;\n//   overflow: scroll;\n//   z-index: 1000;\n// }\n//\n// .shorten-folders-wrapper {\n//   display: flex;\n//   flex-direction: column;\n//   justify-content: space-between;\n//   width: 50%;\n//   margin: 0 auto;\n// }\n//\n// .shorten-folders {\n//   display: flex;\n//   flex-direction: column;\n//   width: 100%;\n//   height: 100%;\n//   z-index: 1000;\n//   transition: all 0.3s;\n// }\n\n\n.shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  // height: 50px;\n  background-color: #FFF;\n  border-bottom: 1px solid $divider-color;\n}\n\n.shorten-folder-title {\n  font-weight: normal;\n}\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
+
+// exports
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+	// get current location
+	var location = typeof window !== "undefined" && window.location;
+
+	if (!location) {
+		throw new Error("fixUrls requires window.location");
+	}
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+		return css;
+	}
+
+	var baseUrl = location.protocol + "//" + location.host;
+	var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+ This regular expression is just a way to recursively match brackets within
+ a string.
+ 	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+    (  = Start a capturing group
+      (?:  = Start a non-capturing group
+          [^)(]  = Match anything that isn't a parentheses
+          |  = OR
+          \(  = Match a start parentheses
+              (?:  = Start another non-capturing groups
+                  [^)(]+  = Match anything that isn't a parentheses
+                  |  = OR
+                  \(  = Match a start parentheses
+                      [^)(]*  = Match anything that isn't a parentheses
+                  \)  = Match a end parentheses
+              )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+  \)  = Match a close parens
+ 	 /gi  = Get all matches, not the first.  Be case insensitive.
+  */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function (fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl.trim().replace(/^"(.*)"$/, function (o, $1) {
+			return $1;
+		}).replace(/^'(.*)'$/, function (o, $1) {
+			return $1;
+		});
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+			return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+			//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = __webpack_require__(0);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _helpers = __webpack_require__(1);
+
+__webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -10589,47 +10902,13 @@ var ShortenForm = function () {
 exports.default = new ShortenForm();
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getId = exports.renderToParent = exports.renderArray = undefined;
-
-var _jquery = __webpack_require__(0);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var renderArray = exports.renderArray = function renderArray(array, parent, component) {
-  (0, _jquery2.default)('#' + parent).html('');
-
-  array.forEach(function (e) {
-    (0, _jquery2.default)('#' + parent).append(component(e));
-  });
-};
-
-var renderToParent = exports.renderToParent = function renderToParent(parent, component) {
-  (0, _jquery2.default)('#' + parent).append(component());
-};
-
-var getId = exports.getId = function getId(raw) {
-  return raw.split('-')[1];
-};
-
-/***/ }),
-/* 7 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(8);
+var content = __webpack_require__(12);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -10637,147 +10916,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(2)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss", function() {
-			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./ShortenForm.scss");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(1)(true);
-// imports
-
-
-// module
-exports.push([module.i, "@keyframes appear {\n  from {\n    transform: scaleY(0); }\n  to {\n    transform: scaleY(100%); } }\n\n.shorten-wrapper {\n  display: none;\n  flex-direction: column;\n  width: 700px;\n  height: 300px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  background-color: red; }\n\n.show {\n  display: flex; }\n\n.shorten-main {\n  display: flex;\n  width: 100%;\n  height: 80%;\n  background-color: blue; }\n\n.path-form {\n  width: 50%;\n  height: 100%;\n  background-color: orange; }\n\n.shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  background-color: #FFF;\n  border-bottom: 1px solid #BDBDBD; }\n\n.shorten-folder-title {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/views/styles/src/views/styles/ShortenForm.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/views/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE;IAAO,qBAAoB,EAAA;EAC3B;IAAO,wBAAuB,EAAA,EAAA;;AAGhC;EACE,cAAa;EACb,uBAAsB;EACtB,aAAY;EACZ,cAAa;EACb,oBAAmB;EACnB,uBAAsB;EACtB,sBAAqB,EACtB;;AAED;EACE,cAAa,EACd;;AAED;EACE,cAAa;EACb,YAAW;EACX,YAAW;EACX,uBAAsB,EACvB;;AAED;EACE,WAAU;EACV,aAAY;EACZ,yBAAwB,EACzB;;AA2CD;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,kBAAiB;EAEjB,uBAAsB;EACtB,iCC3E4B,ED4E7B;;AAED;EACE,oBAAmB,EACpB","file":"ShortenForm.scss","sourcesContent":["@import \"../../utils/palette\";\n\n@keyframes appear {\n  from { transform: scaleY(0); }\n  to   { transform: scaleY(100%); }\n}\n\n.shorten-wrapper {\n  display: none;\n  flex-direction: column;\n  width: 700px;\n  height: 300px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  background-color: red;\n}\n\n.show {\n  display: flex;\n}\n\n.shorten-main {\n  display: flex;\n  width: 100%;\n  height: 80%;\n  background-color: blue;\n}\n\n.path-form {\n  width: 50%;\n  height: 100%;\n  background-color: orange;\n}\n\n// .shorten {\n//   display: flex;\n//   width: 700px;\n//   height: 300px;\n//   margin: 50px auto 0;\n//   background-color: #FFF;\n//   box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n//   z-index: 1000;\n//   overflow: hidden;\n//   background-color: orange;\n// }\n//\n// .path-form {\n//   display: flex;\n//   justify-content: center;\n//   flex-direction: column;\n//   width: 60%;\n//   height: 100%;\n//   background-color: red;;\n//   overflow: scroll;\n//   z-index: 1000;\n// }\n//\n// .shorten-folders-wrapper {\n//   display: flex;\n//   flex-direction: column;\n//   justify-content: space-between;\n//   width: 50%;\n//   margin: 0 auto;\n// }\n//\n// .shorten-folders {\n//   display: flex;\n//   flex-direction: column;\n//   width: 100%;\n//   height: 100%;\n//   z-index: 1000;\n//   transition: all 0.3s;\n// }\n\n\n.shorten-folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  // height: 50px;\n  background-color: #FFF;\n  border-bottom: 1px solid $divider-color;\n}\n\n.shorten-folder-title {\n  font-weight: normal;\n}\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
-
-// exports
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * When source maps are enabled, `style-loader` uses a link element with a data-uri to
- * embed the css on the page. This breaks all relative urls because now they are relative to a
- * bundle instead of the current page.
- *
- * One solution is to only use full urls, but that may be impossible.
- *
- * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
- *
- * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
- *
- */
-
-module.exports = function (css) {
-	// get current location
-	var location = typeof window !== "undefined" && window.location;
-
-	if (!location) {
-		throw new Error("fixUrls requires window.location");
-	}
-
-	// blank or null?
-	if (!css || typeof css !== "string") {
-		return css;
-	}
-
-	var baseUrl = location.protocol + "//" + location.host;
-	var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
-
-	// convert each url(...)
-	/*
- This regular expression is just a way to recursively match brackets within
- a string.
- 	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
-    (  = Start a capturing group
-      (?:  = Start a non-capturing group
-          [^)(]  = Match anything that isn't a parentheses
-          |  = OR
-          \(  = Match a start parentheses
-              (?:  = Start another non-capturing groups
-                  [^)(]+  = Match anything that isn't a parentheses
-                  |  = OR
-                  \(  = Match a start parentheses
-                      [^)(]*  = Match anything that isn't a parentheses
-                  \)  = Match a end parentheses
-              )  = End Group
-              *\) = Match anything and then a close parens
-          )  = Close non-capturing group
-          *  = Match anything
-       )  = Close capturing group
-  \)  = Match a close parens
- 	 /gi  = Get all matches, not the first.  Be case insensitive.
-  */
-	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function (fullMatch, origUrl) {
-		// strip quotes (if they exist)
-		var unquotedOrigUrl = origUrl.trim().replace(/^"(.*)"$/, function (o, $1) {
-			return $1;
-		}).replace(/^'(.*)'$/, function (o, $1) {
-			return $1;
-		});
-
-		// already a full url? no change
-		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
-			return fullMatch;
-		}
-
-		// convert the url to a full url
-		var newUrl;
-
-		if (unquotedOrigUrl.indexOf("//") === 0) {
-			//TODO: should we add protocol?
-			newUrl = unquotedOrigUrl;
-		} else if (unquotedOrigUrl.indexOf("/") === 0) {
-			// path should be relative to the base url
-			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
-		} else {
-			// path should be relative to current directory
-			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
-		}
-
-		// send back the fixed url(...)
-		return "url(" + JSON.stringify(newUrl) + ")";
-	});
-
-	// send back the fixed css
-	return fixedCss;
-};
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(11);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(2)(content, options);
+var update = __webpack_require__(4)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -10794,24 +10933,69 @@ if(false) {
 }
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(1)(true);
+exports = module.exports = __webpack_require__(3)(true);
 // imports
 
 
 // module
-exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif; }\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0; }\n\nbutton {\n  cursor: pointer; }\n\n.bg {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 300px;\n  background-color: #607D8B;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n  z-index: -10; }\n\n.header {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 50px;\n  padding: 0 20px;\n  margin: 15px 0 0;\n  background-color: #607D8B;\n  z-index: 1000; }\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden; }\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(" + __webpack_require__(12) + ");\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px; }\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid #607D8B;\n  color: #BDBDBD;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s; }\n  .tab:focus {\n    outline: none; }\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/src/index.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE,uBAAsB,EACvB;;AAED;EACE,YAAW;EACX,aAAY;EACZ,UAAS;EACT,uCAAsC,EACvC;;AAED;;;;;EAKE,UAAS,EACV;;AAED;EACE,gBAAe,EAChB;;AAED;EACE,mBAAkB;EAClB,OAAM;EACN,QAAO;EACP,YAAW;EACX,cAAa;EACb,0BC9B4B;ED+B5B,mEAAkE;EAClE,aAAY,EACb;;AAED;EACE,mBAAkB;EAClB,cAAa;EACb,oBAAmB;EACnB,+BAA8B;EAC9B,YAAW;EACX,aAAY;EACZ,gBAAe;EACf,iBAAgB;EAChB,0BC5C4B;ED6C5B,cAAa,EACd;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,wBAAuB;EACvB,aAAY;EACZ,iBAAgB,EACjB;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,gDAAwC;EACxC,6BAA4B;EAC5B,6BAA4B;EAC5B,yBAAwB;EACxB,mBAAkB,EACnB;;AAED;EACE,aAAY;EACZ,aAAY;EACZ,eAAc;EACd,8BAA6B;EAC7B,iCCxE4B;EDyE5B,eCnE4B;EDoE5B,kBAAiB;EACjB,gBAAe;EACf,sBAAqB;EACrB,iBAAgB;EAChB,qBAAoB,EAIrB;EAfD;IAaI,cAAa,EACd;;AAGH;EACE,8BAA6B;EAC7B,YAAW,EACZ","file":"index.scss","sourcesContent":["@import \"./utils/palette\";\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif;\n}\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n}\n\nbutton {\n  cursor: pointer;\n}\n\n.bg {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 300px;\n  background-color: $primary-color;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n  z-index: -10;\n}\n\n.header {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 50px;\n  padding: 0 20px;\n  margin: 15px 0 0;\n  background-color: $primary-color;\n  z-index: 1000;\n}\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden;\n}\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(./assets/logo.svg);\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px;\n}\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid $primary-color;\n  color: $divider-color;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s;\n  &:focus {\n    outline: none;\n  }\n}\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF;\n}\n//\n// @keyframes animateTab {\n//   to { transform: scale(100); opacity: 0; }\n// }\n//\n// .ripple {\n//   position: absolute;\n//   background-color: red;\n//   width: 100px;\n//   height: 100px;\n// }\n//\n// .animate-tab {\n//   .ripple {\n//     width: 2px;\n//     height: 2px;\n//     animation: 0.5s animateTab;\n//     background-color: red;\n//     border-radius: 50%;\n//   }\n// }\n//\n// #folder-wrapper {\n//   display: flex;\n//   flex-direction: column;\n//   width: 400px;\n//   height: 800px;\n//   margin: 0 auto;\n// }\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
+exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif; }\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0; }\n\nbutton {\n  cursor: pointer; }\n\n.bg {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 300px;\n  background-color: #607D8B;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n  z-index: -10; }\n\n.header {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 50px;\n  padding: 0 20px;\n  margin: 15px 0 0;\n  background-color: #607D8B;\n  z-index: 1000; }\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden; }\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(" + __webpack_require__(13) + ");\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px; }\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid #607D8B;\n  color: #BDBDBD;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s; }\n  .tab:focus {\n    outline: none; }\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/src/index.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE,uBAAsB,EACvB;;AAED;EACE,YAAW;EACX,aAAY;EACZ,UAAS;EACT,uCAAsC,EACvC;;AAED;;;;;EAKE,UAAS,EACV;;AAED;EACE,gBAAe,EAChB;;AAED;EACE,mBAAkB;EAClB,OAAM;EACN,QAAO;EACP,YAAW;EACX,cAAa;EACb,0BC9B4B;ED+B5B,mEAAkE;EAClE,aAAY,EACb;;AAED;EACE,mBAAkB;EAClB,cAAa;EACb,oBAAmB;EACnB,+BAA8B;EAC9B,YAAW;EACX,aAAY;EACZ,gBAAe;EACf,iBAAgB;EAChB,0BC5C4B;ED6C5B,cAAa,EACd;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,wBAAuB;EACvB,aAAY;EACZ,iBAAgB,EACjB;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,gDAAwC;EACxC,6BAA4B;EAC5B,6BAA4B;EAC5B,yBAAwB;EACxB,mBAAkB,EACnB;;AAED;EACE,aAAY;EACZ,aAAY;EACZ,eAAc;EACd,8BAA6B;EAC7B,iCCxE4B;EDyE5B,eCnE4B;EDoE5B,kBAAiB;EACjB,gBAAe;EACf,sBAAqB;EACrB,iBAAgB;EAChB,qBAAoB,EAIrB;EAfD;IAaI,cAAa,EACd;;AAGH;EACE,8BAA6B;EAC7B,YAAW,EACZ","file":"index.scss","sourcesContent":["@import \"./utils/palette\";\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  font-family: 'Avenir Next', sans-serif;\n}\n\nh1,\nh2,\nh3,\nh4,\np {\n  margin: 0;\n}\n\nbutton {\n  cursor: pointer;\n}\n\n.bg {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 300px;\n  background-color: $primary-color;\n  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);\n  z-index: -10;\n}\n\n.header {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  height: 50px;\n  padding: 0 20px;\n  margin: 15px 0 0;\n  background-color: $primary-color;\n  z-index: 1000;\n}\n\n.nav {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100%;\n  overflow: hidden;\n}\n\n.logo {\n  display: flex;\n  align-items: center;\n  color: #FFF;\n  background-image: url(./assets/logo.svg);\n  background-position: 40% 50%;\n  background-repeat: no-repeat;\n  background-size: contain;\n  word-spacing: 10px;\n}\n\n.tab {\n  border: none;\n  height: 100%;\n  margin: 0 10px;\n  background-color: transparent;\n  border-bottom: 4px solid $primary-color;\n  color: $divider-color;\n  font-weight: bold;\n  font-size: 14px;\n  letter-spacing: 0.5px;\n  overflow: hidden;\n  transition: all 0.1s;\n  &:focus {\n    outline: none;\n  }\n}\n\n.active-tab {\n  border-bottom: 4px solid #FFF;\n  color: #FFF;\n}\n//\n// @keyframes animateTab {\n//   to { transform: scale(100); opacity: 0; }\n// }\n//\n// .ripple {\n//   position: absolute;\n//   background-color: red;\n//   width: 100px;\n//   height: 100px;\n// }\n//\n// .animate-tab {\n//   .ripple {\n//     width: 2px;\n//     height: 2px;\n//     animation: 0.5s animateTab;\n//     background-color: red;\n//     border-radius: 50%;\n//   }\n// }\n//\n// #folder-wrapper {\n//   display: flex;\n//   flex-direction: column;\n//   width: 400px;\n//   height: 800px;\n//   margin: 0 auto;\n// }\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
 
 // exports
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNTEuOTEzIDUxLjkxMyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEuOTEzIDUxLjkxMzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnPgoJCTxnPgoJCQk8cGF0aCBkPSJNMjEuMzY3LDEwLjcxaC0wLjcwM2MtMC44MjQsMC0xLjQ5MSwwLjYxMi0xLjQ5MSwxLjM2OHY1Ljc5NGgzLjY4NnYtNS43OTRDMjIuODU4LDExLjMyMywyMi4xOTEsMTAuNzEsMjEuMzY3LDEwLjcxeiIgZmlsbD0iIzQ1NUE2NCIvPgoJCQk8cGF0aCBkPSJNMzEuMjQ5LDEwLjcxaC0wLjcwNGMtMC44MjIsMC0xLjQ5LDAuNjEyLTEuNDksMS4zNjh2NS43OTRoMy42ODd2LTUuNzk0QzMyLjc0LDExLjMyMywzMi4wNzMsMTAuNzEsMzEuMjQ5LDEwLjcxeiIgZmlsbD0iIzQ1NUE2NCIvPgoJCQk8cGF0aCBkPSJNMjUuOTU3LDAuNTc3QzExLjY0NCwwLjU3NywwLDEyLjIyMSwwLDI2LjUzNGMwLDYuOTEsMi42ODQsMTMuNDEzLDcuNTU4LDE4LjMxMWMyLjg4NiwyLjksNi40NTgsNS4xMDQsMTAuMzI5LDYuMzY2ICAgICBjMC4yNTgsMC4wODUsMC41MiwwLjEyNSwwLjc3NywwLjEyNWMxLjA1MiwwLDIuMDMxLTAuNjcsMi4zNzYtMS43MjVjMC40MjktMS4zMTMtMC4yODgtMi43MjUtMS42LTMuMTUyICAgICBjLTMuMTIzLTEuMDIxLTYuMDA2LTIuNzk5LTguMzM3LTUuMTQyYy0zLjkzNS0zLjk1NC02LjEwMi05LjIwNC02LjEwMi0xNC43ODNjMC0xMS41NTYsOS40MDEtMjAuOTU3LDIwLjk1Ny0yMC45NTcgICAgIGMxMS41NTYsMCwyMC45NTcsOS40MDEsMjAuOTU3LDIwLjk1N2MwLDUuNi0yLjE3OSwxMC44NTktNi4xMzQsMTQuODE2Yy0xLjUxOSwxLjM2Mi01LjI4Niw0LjEwNC03LjU0OSw0LjEwNCAgICAgYy0xLjE2MiwwLTIuMDMtMC4zNjYtMi43MzYtMS4xNWMtMS43ODktMS45OTMtMi4xODItNi4wMjgtMi4xNjUtOC44NGM0LjMzOS0wLjIxOSw3Ljc5My0zLjc5Niw3Ljc5My04LjE4OHYtNy43OEgxNS43OXY3Ljc4ICAgICBjMCw0LjMwNywzLjMxOCw3LjgzMiw3LjUzNyw4LjE3N2MtMC4wMjYsMy4zNSwwLjQ0NCw4Ljg0LDMuNDM5LDEyLjE4NWMxLjY1MiwxLjg0NSwzLjg5LDIuODE4LDYuNDY2LDIuODE4ICAgICBjNC44MzYsMCwxMC4zNDItNC44ODUsMTAuOTUyLTUuNDRsMC4wOC0wLjA3NmM0LjkzNC00LjkwNyw3LjY0OC0xMS40NDIsNy42NDgtMTguNDAyQzUxLjkxNCwxMi4yMjEsNDAuMjcsMC41NzcsMjUuOTU3LDAuNTc3eiIgZmlsbD0iIzQ1NUE2NCIvPgoJCTwvZz4KCTwvZz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K"
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(15);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(4)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./Collections.scss", function() {
+			var newContent = require("!!../../../node_modules/css-loader/index.js??ref--2-1!../../../node_modules/sass-loader/lib/loader.js??ref--2-2!./Collections.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(3)(true);
+// imports
+
+
+// module
+exports.push([module.i, "@keyframes appear {\n  from {\n    transform: scaleY(0); }\n  to {\n    transform: scaleY(100%); } }\n\n.collections-wrapper {\n  display: none;\n  width: 600px;\n  height: 500px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n  z-index: 0;\n  overflow: hidden; }\n\n.collections-folders {\n  display: none;\n  flex-direction: column;\n  width: 40%;\n  height: 100%;\n  background-color: red;\n  overflow: scroll;\n  z-index: 1000; }\n\n.collections-paths {\n  display: none;\n  flex-direction: column;\n  width: 60%;\n  height: 100%;\n  z-index: 900;\n  transform: translateX(-95%);\n  transition: all 0.3s; }\n\n.collections-expand .collections-paths {\n  transform: translateX(0%); }\n\n.folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  height: 50px;\n  border-bottom: 1px solid #BDBDBD;\n  color: #FFF;\n  cursor: pointer; }\n\n.folder-title {\n  font-weight: normal; }\n\n.path-cell {\n  display: flex;\n  flex-direction: column;\n  align-self: flex-end;\n  width: 95%;\n  padding: 10px 20px;\n  margin: 5px 5px 5px 0;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1); }\n\n.path-title {\n  font-size: 16px;\n  font-weight: normal; }\n\n.path-link {\n  font-weight: normal; }\n", "", {"version":3,"sources":["/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/views/styles/src/views/styles/Collections.scss","/Users/JDJim/Documents/Turing/projects/mod4/jet-fuel/src/views/styles/src/utils/_palette.scss"],"names":[],"mappings":"AAEA;EACE;IAAO,qBAAoB,EAAA;EAC3B;IAAO,wBAAuB,EAAA,EAAA;;AAGhC;EACE,cAAa;EACb,aAAY;EACZ,cAAa;EACb,oBAAmB;EACnB,uBAAsB;EACtB,2EAA0E;EAC1E,WAAU;EACV,iBAAgB,EACjB;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,WAAU;EACV,aAAY;EACZ,sBAAqB;EACrB,iBAAgB;EAChB,cAAa,EACd;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,WAAU;EACV,aAAY;EACZ,aAAY;EACZ,4BAA2B;EAC3B,qBAAoB,EACrB;;AAED;EACE,0BAAyB,EAC1B;;AAED;EACE,cAAa;EACb,oBAAmB;EACnB,YAAW;EACX,kBAAiB;EACjB,aAAY;EACZ,iCCzC4B;ED0C5B,YAAW;EACX,gBAAe,EAChB;;AAED;EACE,oBAAmB,EACpB;;AAED;EACE,cAAa;EACb,uBAAsB;EACtB,qBAAoB;EACpB,WAAU;EACV,mBAAkB;EAClB,sBAAqB;EACrB,2EAA0E,EAC3E;;AAED;EACE,gBAAe;EACf,oBAAmB,EACpB;;AAED;EACE,oBAAmB,EACpB","file":"Collections.scss","sourcesContent":["@import \"../../utils/palette\";\n\n@keyframes appear {\n  from { transform: scaleY(0); }\n  to   { transform: scaleY(100%); }\n}\n\n.collections-wrapper {\n  display: none;\n  width: 600px;\n  height: 500px;\n  margin: 50px auto 0;\n  animation: appear 0.2s;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n  z-index: 0;\n  overflow: hidden;\n}\n\n.collections-folders {\n  display: none;\n  flex-direction: column;\n  width: 40%;\n  height: 100%;\n  background-color: red;\n  overflow: scroll;\n  z-index: 1000;\n}\n\n.collections-paths {\n  display: none;\n  flex-direction: column;\n  width: 60%;\n  height: 100%;\n  z-index: 900;\n  transform: translateX(-95%);\n  transition: all 0.3s;\n}\n\n.collections-expand .collections-paths {\n  transform: translateX(0%);\n}\n\n.folder-cell {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 0 20px 0;\n  height: 50px;\n  border-bottom: 1px solid $divider-color;\n  color: #FFF;\n  cursor: pointer;\n}\n\n.folder-title {\n  font-weight: normal;\n}\n\n.path-cell {\n  display: flex;\n  flex-direction: column;\n  align-self: flex-end;\n  width: 95%;\n  padding: 10px 20px;\n  margin: 5px 5px 5px 0;\n  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);\n}\n\n.path-title {\n  font-size: 16px;\n  font-weight: normal;\n}\n\n.path-link {\n  font-weight: normal;\n}\n","$primary-color-dark:   #455A64;\n$primary-color:        #607D8B;\n$primary-color-light:  #CFD8DC;\n$primary-color-text:   #FFFFFF;\n$accent-color:         #009688;\n$primary-text-color:   #212121;\n$secondary-text-color: #757575;\n$divider-color:        #BDBDBD;\n"],"sourceRoot":""}]);
+
+// exports
+
 
 /***/ })
 /******/ ]);

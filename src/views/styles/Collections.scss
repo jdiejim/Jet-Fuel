@@ -1,41 +1,75 @@
-// @import "../../utils/palette";
-//
-// @keyframes appear {
-//   from { transform: scaleY(0); }
-//   to   { transform: scaleY(100%); }
-// }
-//
-// .collections-wrapper {
-//   display: flex;
-//   width: 600px;
-//   height: 500px;
-//   margin: 50px auto 0;
-//   animation: appear 0.2s;
-//   box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);
-//   z-index: 0;
-//   overflow: hidden;
-// }
-//
-// .collections-folders {
-//   display: flex;
-//   flex-direction: column;
-//   width: 40%;
-//   height: 100%;
-//   background-color: red;
-//   overflow: scroll;
-//   z-index: 1000;
-// }
-//
-// .collections-paths {
-//   display: flex;
-//   flex-direction: column;
-//   width: 60%;
-//   height: 100%;
-//   z-index: 900;
-//   transform: translateX(-95%);
-//   transition: all 0.3s;
-// }
-//
-// .collections-expand .collections-paths {
-//   transform: translateX(0%);
-// }
+@import "../../utils/palette";
+
+@keyframes appear {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(100%); }
+}
+
+.collections-wrapper {
+  display: none;
+  width: 600px;
+  height: 500px;
+  margin: 50px auto 0;
+  animation: appear 0.2s;
+  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);
+  z-index: 0;
+  overflow: hidden;
+}
+
+.collections-folders {
+  display: none;
+  flex-direction: column;
+  width: 40%;
+  height: 100%;
+  background-color: red;
+  overflow: scroll;
+  z-index: 1000;
+}
+
+.collections-paths {
+  display: none;
+  flex-direction: column;
+  width: 60%;
+  height: 100%;
+  z-index: 900;
+  transform: translateX(-95%);
+  transition: all 0.3s;
+}
+
+.collections-expand .collections-paths {
+  transform: translateX(0%);
+}
+
+.folder-cell {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px 0;
+  height: 50px;
+  border-bottom: 1px solid $divider-color;
+  color: #FFF;
+  cursor: pointer;
+}
+
+.folder-title {
+  font-weight: normal;
+}
+
+.path-cell {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-end;
+  width: 95%;
+  padding: 10px 20px;
+  margin: 5px 5px 5px 0;
+  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);
+}
+
+.path-title {
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.path-link {
+  font-weight: normal;
+}
