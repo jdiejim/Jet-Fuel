@@ -1,9 +1,10 @@
 import $ from 'jquery';
-// import * as Collections from './components/Collections';
+import Collections from './views/Collections';
 import ShortenForm from './views/ShortenForm';
 import './index.scss';
 
 ShortenForm.initialMount();
+Collections.loadEvents();
 
 const toggleTab = (e) => {
   const tab = $(e.target).prop('id');
@@ -21,10 +22,10 @@ const renderView = (tab) => {
   switch (tab) {
     case 'tab-1':
       ShortenForm.mount();
-      return;
+      return Collections.unMount();
     case 'tab-2':
       ShortenForm.unMount();
-      return;
+      return Collections.mount();
   }
 }
 
