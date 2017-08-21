@@ -17,7 +17,6 @@
   height: 400px;
   margin: 50px auto 0;
   animation: appear 0.2s;
-  // border: 1px solid black;
   overflow: hidden;
 }
 
@@ -91,11 +90,8 @@
   position: relative;
   display: none;
   flex-direction: column;
-  // justify-content: space-between;
   width: 50%;
   height: 100%;
-  // background-color: orange;
-  // margin: 0 auto;
   margin-left: 20px;
   animation: appear 0.2s;
 }

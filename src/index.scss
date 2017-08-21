@@ -33,7 +33,6 @@ button {
   left: 0;
   width: 100%;
   height: 300px;
-  // background-color: $primary-color;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.3), 0 0 3px rgba(0, 0, 0, 0.3);
   z-index: -10;
 }
@@ -46,7 +45,6 @@ button {
   width: 100%;
   height: 80px;
   padding: 5px 20px;
-  // margin: 15px 0 0;
   background-color: rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
@@ -89,32 +87,3 @@ button {
 .active-tab {
   color: #FFF;
 }
-//
-// @keyframes animateTab {
-//   to { transform: scale(100); opacity: 0; }
-// }
-//
-// .ripple {
-//   position: absolute;
-//   background-color: red;
-//   width: 100px;
-//   height: 100px;
-// }
-//
-// .animate-tab {
-//   .ripple {
-//     width: 2px;
-//     height: 2px;
-//     animation: 0.5s animateTab;
-//     background-color: red;
-//     border-radius: 50%;
-//   }
-// }
-//
-// #folder-wrapper {
-//   display: flex;
-//   flex-direction: column;
-//   width: 400px;
-//   height: 800px;
-//   margin: 0 auto;
-// }
