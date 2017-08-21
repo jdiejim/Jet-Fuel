@@ -1,18 +1,17 @@
 import $ from 'jquery';
 import moment from 'moment';
-import { getId, renderArray } from '../utils/helpers';
+import { getId, renderArray, renderArrayAppend } from '../utils/helpers';
 import './styles/Collections.scss';
 
 class Collections {
   constructor() {
     this.loadUrls = this.loadUrls.bind(this);
-    this.folders = [];
+    this.sortDate = this.sortDate.bind(this);
+    this.paths = [];
   }
 
   mount() {
-    if (!this.folders.length) {
-      this.fetchFolders();
-    }
+    this.fetchFolders();
 
     $('#collections-wrapper').addClass('show');
     $('#collections-folders').addClass('show');
@@ -22,26 +21,35 @@ class Collections {
     $('#collections-wrapper').removeClass('show');
     $('#collections-folders').removeClass('show');
     $('#collections-paths').removeClass('show');
+    $('#collections-paths-wrapper').removeClass('show');
   }
 
   loadEvents() {
     $('#collections-folders').on('click', '.folder-cell', this.loadUrls);
+    $('#sorting-buttons').on('click', this.sortDate);
   }
 
   loadUrls({ target, target: { className } }) {
     const cell = className === 'folder-title' ? $(target).parent() : $(target);
     const id = getId(cell.prop('id'));
 
+    $('#collections-paths-wrapper').addClass('show');
     $('#collections-paths').addClass('show');
+    $('#sorting-buttons').addClass('show');
     this.fetchPaths(id);
   }
 
-  handleAnimation(el) {
-    if (el.hasClass('collections-expand')) {
-      el.removeClass('collections-expand');
-      setTimeout(() => el.addClass('collections-expand'), 300);
-    } else {
-      el.addClass('collections-expand');
+  sortDate(e) {
+    const id = $(e.target).prop('id');
+
+    $('#collections-paths').html('');
+    switch (id) {
+      case 'up':
+        renderArray(this.paths, 'collections-paths', this.pathCell);
+        break;
+      case 'down':
+        renderArrayAppend(this.paths, 'collections-paths', this.pathCell);
+        break;
     }
   }
 
@@ -50,7 +58,7 @@ class Collections {
       .then(res => res.json())
       .then(paths => {
         renderArray(paths, 'collections-paths', this.pathCell);
-        this.handleAnimation($('#collections-wrapper'));
+        this.paths = paths;
       })
       .catch(error => console.log(error))
   }
@@ -60,7 +68,6 @@ class Collections {
       .then(res => res.json())
       .then(folders => {
         renderArray(folders, 'collections-folders', this.folderCell);
-        this.folders = folders;
       })
       .catch(error => console.log(error))
   }
@@ -79,10 +86,8 @@ class Collections {
 
     return `
       <article id="path-${id}" class="path-cell">
-        <section class="path-info-wrapper">
-          <h3 class="path-title">${title}:</h3>
-          <a class="path-link" href="${link}" target="_blank">${link}</a>
-        </section>
+        <h3 class="path-title">${title}:</h3>
+        <a class="path-link" href="${link}" target="_blank">${link}</a>
         <p class="path-date">${moment(created_at).format('MMM DD YY, h:mm a')}</p>
       </article>
     `

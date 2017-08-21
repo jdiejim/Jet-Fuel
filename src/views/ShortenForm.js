@@ -55,7 +55,24 @@ class ShortenForm {
     this.clearInputs(title, path);
   }
 
+  urlValidation(input) {
+    return input.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g) === null;
+  }
+
+  errorHandler() {
+    const component = `<p class="error-msg">Url Not Valid</p>`;
+
+    $('.short-link-wrapper').html('');
+    $('.input-form').addClass('show-short');
+    $('.short-link-wrapper').append(component);
+  }
+
   postPath(id, body) {
+    if (this.urlValidation(body.path)) {
+      this.errorHandler();
+      return;
+    }
+
     fetch(`api/v1/folders/${id}/paths`, {
       method: 'POST',
       body: JSON.stringify(body),
@@ -99,6 +116,7 @@ class ShortenForm {
     const link = `${window.location.href}${short}`;
     const component = `<a class="short-link" href="${link}" target="_blank">${link}</a>`;
 
+    $('.short-link-wrapper').html('');
     $('.input-form').addClass('show-short');
     $('.short-link-wrapper').append(component);
   }
