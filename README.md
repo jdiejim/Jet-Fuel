@@ -4,7 +4,7 @@
 
 Jet Fuel lets you take a long URL and shorten it. When you visit the short URL you get redirected to the original URL.
 
-The stack used is Node.js with express, knex, and postgres as the DMS
+The stack used is Node.js with express, Knex, and Postgres as the DMS
 
 ## Screenshots
 
