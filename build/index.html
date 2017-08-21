@@ -7,7 +7,6 @@
     <link rel="shortcut icon" href="#" />
   </head>
   <body>
-    <section class="bg"></section>
     <header class="header">
       <h1 class="logo">Jet Fuel</h1>
       <nav class="nav">
@@ -17,24 +16,26 @@
     </header>
     <main id="app" class="main">
       <section id="shorten-wrapper" class="shorten-wrapper">
-        <main class="shorten-main">
+        <section class="shorten-main">
           <section class="path-form">
             <h2 class="path-form-title">Shorten your URL</h2>
-            <input id="input-title" class="input-title" type="text" name="" value="" placeholder="Title">
-            <input id="input-path" class="input-path" type="text" name="" value="" placeholder="Paste a link to shorten">
+            <form class="input-form">
+              <input id="input-title" class="input-title" type="text" name="" value="" placeholder="Enter a title">
+              <input id="input-path" class="input-path" type="text" name="" value="" placeholder="Paste a link">
+              <div class="short-link-wrapper"></div>
+            </form>
           </section>
           <section class="shorten-folders-wrapper">
-            <h2 class="folder-form-title">Choose folder to save</h2>
+            <section class="shorten-header">
+              <h2 class="folder-form-title">Select folder to save</h2>
+              <section class="create-folder">
+                <button id="save-folder" class="save-folder"></button>
+                <input id="input-folder" class="input-folder" type="text" name="" value="" placeholder="Add Folder">
+              </section>
+            </section>
             <section id="shorten-folders" class="shorten-folders"></section>
-            <input id="input-folder" class="input-folder" type="text" name="" value="">
-            <button id="save-folder" class="save-folder">Create New Folder</button>
           </section>
-        </main>
-        <footer class="shorten-footer">
-          <article class="shorten-result">
-            <a href="">link</a>
-          </article>
-        </footer>
+        </section>
       </section>
       <section id="collections-wrapper">
         <section id="collections-folders" class="collections-folders"></section>
