@@ -4,72 +4,185 @@
   from { transform: scaleY(0); }
   to   { transform: scaleY(100%); }
 }
+//
+// .collections-wrapper {
+//   display: none;
+//   justify-content: center;
+//   width: 80%;
+//   // height: 350px;
+//   margin: 100px auto;
+//   background-color: blue;
+//   animation: appear 0.2s;
+//   overflow: hidden;
+// }
+//
+// .collections-folders {
+//   display: none;
+//   flex-direction: column;
+//   width: 40%;
+//   height: 100px;
+//   padding: 10px 20px;
+//   border: none;
+//   box-shadow: inset 0px -11px 8px -10px #FFF;
+//   background-color: red;
+//   z-index: 1000;
+//   overflow: scroll;
+// }
+//
+// .collections-paths {
+//   display: none;
+//   flex-direction: column;
+//   width: 60%;
+//   height: 100%;
+//   z-index: 900;
+//   border: 1px solid #FFF;
+//   box-shadow: inset 0px -11px 8px -10px #FFF;
+//   transform: translateX(-95%);
+//   transition: all 0.3s;
+//   overflow: scroll;
+//   transform: translateY(-100%);
+// }
+//
+// .collections-expand .collections-paths {
+//   transform: translateX(0%);
+// }
+//
+// .folder-cell {
+//   display: flex;
+//   align-items: center;
+//   width: 100%;
+//   height: 200px;
+//   padding: 20px;
+//   border-bottom: 1px solid $divider-color;
+//   color: #FFF;
+//   cursor: pointer;
+// }
+//
+// .folder-title {
+//   font-weight: normal;
+// }
+//
+
 
 .collections-wrapper {
   display: none;
-  width: 600px;
-  height: 500px;
-  margin: 50px auto 0;
+  justify-content: center;
+  width: 80%;
+  margin: 100px auto;
+  height: 400px;
+  // background-color: red;
   animation: appear 0.2s;
-  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);
-  z-index: 0;
   overflow: hidden;
 }
 
 .collections-folders {
-  display: none;
   flex-direction: column;
-  width: 40%;
-  height: 100%;
-  background-color: red;
+  width: 100%;
+  height: 90%;
+  // background-color: blue;
+  box-shadow: inset 0px -11px 8px -10px #FFF;
   overflow: scroll;
-  z-index: 1000;
 }
 
 .collections-paths {
-  display: none;
   flex-direction: column;
-  width: 60%;
-  height: 100%;
-  z-index: 900;
-  transform: translateX(-95%);
-  transition: all 0.3s;
+  width: 100%;
+  height: 90%;
+  // background-color: blue;
+  box-shadow: inset 0px -11px 8px -10px #FFF;
+  overflow: scroll;
 }
 
-.collections-expand .collections-paths {
-  transform: translateX(0%);
+.collection-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  background-image: url(../../assets/folder.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 .folder-cell {
   display: flex;
   align-items: center;
+  padding: 40px 20px;
   width: 100%;
-  padding: 0 20px 0;
-  height: 50px;
   border-bottom: 1px solid $divider-color;
-  color: #FFF;
   cursor: pointer;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 }
 
 .folder-title {
-  font-weight: normal;
+  color: #FFF;
+  font-size: 30px;
+  font-weight: lighter;
+}
+
+.collections-folders-title {
+  margin-bottom: 10px;
+  color: #FFF;
+  font-size: 30px;
+  font-weight: lighter;
+  text-align: center;
+}
+
+.collections-folders-wrapper {
+  width: 50%;
+  height: 100%;
+}
+
+.collections-paths {
+  display: none;
+  flex-direction: column;
+  width: 50%;
+  height: 100%;
+  padding: 20px;
+  animation: appear 0.2s;
+  // background-color: red;
+  overflow: scroll;
+}
+
+.path-info-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .path-cell {
   display: flex;
-  flex-direction: column;
-  align-self: flex-end;
-  width: 95%;
-  padding: 10px 20px;
-  margin: 5px 5px 5px 0;
-  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.1), 0 10px 18px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 20px;
+  height: 50px;
+  width: 100%;
+  border-bottom: 1px solid $divider-color;
+  color: #FFF;
 }
 
 .path-title {
+  color: #FFF;
   font-size: 16px;
   font-weight: normal;
 }
 
 .path-link {
-  font-weight: normal;
+  color: #FFF;
+  font-size: 16px;
+  font-weight: lighter;
+  text-decoration: none;
+  cursor: pointer;
+  &:hover {
+    color: #7ac3d6;
+  }
+  &:visited {
+    color: #FFF;
+  }
+}
+
+.path-date {
+  color: #FFF;
+  font-size: 14px;
 }
