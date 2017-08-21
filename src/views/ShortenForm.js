@@ -22,6 +22,9 @@ class ShortenForm {
     $('#shorten-wrapper').addClass('show');
     $('.input-form').removeClass('show-short');
     $('.short-link-wrapper').html('');
+    $('.shorten-folders-wrapper').removeClass('shorten-folders-wrapper-show');
+    $('#input-title').val('');
+    $('#input-path').val('');
   }
 
   unMount() {
@@ -31,6 +34,16 @@ class ShortenForm {
   loadEvents() {
     $('#save-folder').on('click', this.saveFolder);
     $('#shorten-folders').on('click', '.save-btn', this.savePath);
+    $('#input-title').on('keyup', this.validate);
+    $('#input-path').on('keyup', this.validate);
+  }
+
+  validate() {
+    if ($('#input-path').val() !== '' && $('#input-title').val() !== '') {
+      $('.shorten-folders-wrapper').addClass('shorten-folders-wrapper-show');
+    } else {
+      $('.shorten-folders-wrapper').removeClass('shorten-folders-wrapper-show');
+    }
   }
 
   savePath(e) {

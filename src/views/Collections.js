@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import moment from 'moment';
 import { getId, renderArray } from '../utils/helpers';
 import './styles/Collections.scss';
 
@@ -15,7 +16,6 @@ class Collections {
 
     $('#collections-wrapper').addClass('show');
     $('#collections-folders').addClass('show');
-    $('#collections-paths').addClass('show');
   }
 
   unMount() {
@@ -32,6 +32,7 @@ class Collections {
     const cell = className === 'folder-title' ? $(target).parent() : $(target);
     const id = getId(cell.prop('id'));
 
+    $('#collections-paths').addClass('show');
     this.fetchPaths(id);
   }
 
@@ -67,18 +68,22 @@ class Collections {
   folderCell({ id, name }) {
     return `
       <article id="folder-${id}" class="folder-cell">
+        <div class="collection-icon"></div>
         <h3 class="folder-title">${name}</h3>
       </article>
     `
   }
 
-  pathCell({ id, title, short, path, date }) {
+  pathCell({ id, title, short, path, created_at }) {
     const link = `${window.location.href}${short}`;
 
     return `
       <article id="path-${id}" class="path-cell">
-        <h3 class="path-title">${title}:</h3>
-        <a class="path-link" href="${link}" target="_blank">${link}</a>
+        <section class="path-info-wrapper">
+          <h3 class="path-title">${title}:</h3>
+          <a class="path-link" href="${link}" target="_blank">${link}</a>
+        </section>
+        <p class="path-date">${moment(created_at).format('MMM DD YY, h:mm a')}</p>
       </article>
     `
   }
