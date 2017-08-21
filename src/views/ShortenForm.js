@@ -20,6 +20,8 @@ class ShortenForm {
     }
 
     $('#shorten-wrapper').addClass('show');
+    $('.input-form').removeClass('show-short');
+    $('.short-link-wrapper').html('');
   }
 
   unMount() {
@@ -82,9 +84,10 @@ class ShortenForm {
 
   appendShort({ short }) {
     const link = `${window.location.href}${short}`;
-    const component = `<a class="path-link" href="${link}" target="_blank">${link}</a>`;
+    const component = `<a class="short-link" href="${link}" target="_blank">${link}</a>`;
 
-    $('.shorten-wrapper').append(component);
+    $('.input-form').addClass('show-short');
+    $('.short-link-wrapper').append(component);
   }
 
   getInputs() {
@@ -103,7 +106,10 @@ class ShortenForm {
   folderCell({ id, name }) {
     return `
       <article id="folder-${id}" class="shorten-folder-cell">
-        <h3 class="shorten-folder-title">${name}</h3>
+        <section class="shorten-cell-info">
+          <div class="shorten-icon"></div>
+          <h3 class="shorten-folder-title">${name}</h3>
+        </section>
         <button class="save-btn">Save</button>
       </article>
     `

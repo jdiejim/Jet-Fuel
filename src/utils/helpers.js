@@ -4,12 +4,12 @@ export const renderArray = (array, parent, component) => {
   $(`#${parent}`).html('');
 
   array.forEach(e => {
-    $(`#${parent}`).append(component(e))
+    $(`#${parent}`).prepend(component(e))
   });
 }
 
 export const renderToParent = (parent, component) => {
-  $(`#${parent}`).append(component())
+  $(`#${parent}`).prepend(component())
 }
 
 export const getId = (raw) => raw.split('-')[1];
